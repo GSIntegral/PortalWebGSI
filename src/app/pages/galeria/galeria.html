@@ -1,0 +1,58 @@
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero__inner">
+      <nav class="breadcrumb"><a routerLink="/">Inicio</a> <span>›</span> <span>Registro Fotográfico</span></nav>
+      <h1>Registro Fotográfico</h1>
+      <p>Momentos de nuestras formaciones, certificaciones y acompañamientos en la región.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="filters" role="tablist" aria-label="Filtrar fotografías">
+      @for (cat of categories; track cat) {
+        <button
+          class="filter-chip"
+          [class.is-active]="filter() === cat"
+          (click)="setFilter(cat)"
+          role="tab"
+          [attr.aria-selected]="filter() === cat"
+        >
+          {{ cat }}
+        </button>
+      }
+    </div>
+
+    <div class="gallery">
+      @for (photo of filtered(); track photo.id) {
+        <button class="tile reveal" reveal [revealDelay]="$index * 50" (click)="open(photo)" [attr.data-tone]="photo.id % 5">
+          <span class="tile__img" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m3 17 5-4 4 3 3-2 6 5"/></svg>
+          </span>
+          <span class="tile__overlay">
+            <span class="tile__cat">{{ photo.category }}</span>
+            <span class="tile__title">{{ photo.title }}</span>
+            <span class="tile__place">{{ photo.place }}</span>
+          </span>
+        </button>
+      }
+    </div>
+  </div>
+</section>
+
+@if (active(); as photo) {
+  <div class="lightbox" (click)="close()">
+    <button class="lightbox__close" (click)="close()" aria-label="Cerrar">&times;</button>
+    <figure class="lightbox__figure" (click)="$event.stopPropagation()">
+      <div class="lightbox__img" [attr.data-tone]="photo.id % 5">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m3 17 5-4 4 3 3-2 6 5"/></svg>
+      </div>
+      <figcaption>
+        <span class="lightbox__cat">{{ photo.category }}</span>
+        <strong>{{ photo.title }}</strong>
+        <span>{{ photo.place }}</span>
+      </figcaption>
+    </figure>
+  </div>
+}

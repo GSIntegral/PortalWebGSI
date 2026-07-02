@@ -1,0 +1,29 @@
+:host { display: inline-flex; }
+
+.logo__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--navy-900);
+}
+.logo__link:hover { color: var(--navy-900); }
+
+.logo__mark {
+  height: 42px;
+  width: auto;
+  flex: none;
+  color: var(--navy-900);
+}
+
+.logo__word {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.4rem;
+  letter-spacing: -0.02em;
+  color: currentColor;
+  line-height: 1;
+}
+
+/* Variante para fondos oscuros */
+.logo--light { color: #fff; }
+.logo--light .logo__mark { color: #fff; }

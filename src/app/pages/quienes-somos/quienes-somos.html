@@ -1,0 +1,76 @@
+<section class="page-hero">
+  <div class="container">
+    <div class="page-hero__inner">
+      <nav class="breadcrumb"><a routerLink="/">Inicio</a> <span>›</span> <span>Quiénes Somos</span></nav>
+      <h1>Quiénes Somos</h1>
+      <p>Una compañía colombiana con presencia a nivel latinoamericano.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container about">
+    <div class="about__text reveal" reveal>
+      <span class="eyebrow">GS Integral SAS</span>
+      <h2>Impulsamos el crecimiento a través de la estandarización</h2>
+      <p>
+        <strong>GS Integral SAS</strong> es una compañía colombiana, con presencia a nivel
+        latinoamericano, creada para suplir las necesidades de las empresas de diversos sectores en
+        temas de estandarización de sus procesos, generando crecimiento continuo de todos nuestros
+        aliados estratégicos.
+      </p>
+      <p>
+        Actualmente contamos con sedes en <strong>Colombia, Guatemala y Ecuador</strong>, además de
+        aliados estratégicos en más de 10 países, lo que nos permite acompañar a nuestros clientes de
+        forma presencial y virtual en toda la región.
+      </p>
+      <a routerLink="/contactanos" class="btn">Hablemos de tu proyecto</a>
+    </div>
+
+    <aside class="about__aside reveal" reveal [revealDelay]="120">
+      <div class="about__stat">
+        <strong>+28</strong>
+        <span>años transformando organizaciones</span>
+      </div>
+      <ul class="about__sedes">
+        @for (s of sedes; track s) {
+          <li>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+            {{ s }}
+          </li>
+        }
+      </ul>
+      <p class="about__note">Aliados estratégicos en más de 10 países.</p>
+    </aside>
+  </div>
+</section>
+
+<section class="section section--alt">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Lo que nos define</span>
+      <h2>Misión, visión y valores</h2>
+    </div>
+    <div class="grid grid-3">
+      @for (v of values; track v.title) {
+        <article class="card mvv reveal" reveal [revealDelay]="$index * 90">
+          <span class="mvv__icon">
+            @switch (v.icon) {
+              @case ('target') {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/></svg>
+              }
+              @case ('eye') {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+              }
+              @default {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.8 5.6a5 5 0 0 0-7.1 0L12 7.3l-1.7-1.7a5 5 0 1 0-7.1 7.1L12 21.4l8.8-8.7a5 5 0 0 0 0-7.1Z" stroke-linejoin="round"/></svg>
+              }
+            }
+          </span>
+          <h3>{{ v.title }}</h3>
+          <p>{{ v.text }}</p>
+        </article>
+      }
+    </div>
+  </div>
+</section>

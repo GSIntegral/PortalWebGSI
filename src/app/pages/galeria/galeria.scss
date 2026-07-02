@@ -1,0 +1,162 @@
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  justify-content: center;
+  margin-bottom: 2.5rem;
+}
+.filter-chip {
+  padding: 0.55rem 1.2rem;
+  border-radius: var(--r-full);
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: var(--ink-500);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.filter-chip:hover { border-color: var(--primary-400); color: var(--primary-500); }
+.filter-chip.is-active {
+  background: var(--navy-900);
+  border-color: var(--navy-900);
+  color: #fff;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.25rem;
+}
+
+.tile {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border: 0;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.tile:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+
+.tile__img {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.5);
+}
+.tile__img svg { width: 46px; height: 46px; }
+
+/* Paleta de tonos para los placeholders */
+.tile[data-tone='0'] .tile__img { background: linear-gradient(135deg, #0b1f33, #14324f); }
+.tile[data-tone='1'] .tile__img { background: linear-gradient(135deg, #12467e, #2f78c4); }
+.tile[data-tone='2'] .tile__img { background: linear-gradient(135deg, #14324f, #1a5c9e); }
+.tile[data-tone='3'] .tile__img { background: linear-gradient(135deg, #1a5c9e, #0b1f33); }
+.tile[data-tone='4'] .tile__img { background: linear-gradient(135deg, #0f2942, #12467e); }
+
+.tile__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 0.15rem;
+  padding: 1.1rem;
+  text-align: left;
+  background: linear-gradient(0deg, rgba(11, 31, 51, 0.85) 0%, rgba(11, 31, 51, 0.1) 55%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.tile:hover .tile__overlay { opacity: 1; }
+.tile__cat {
+  align-self: flex-start;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--navy-900);
+  background: var(--accent-500);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--r-full);
+  margin-bottom: 0.4rem;
+}
+.tile__title { color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; }
+.tile__place { color: rgba(255, 255, 255, 0.75); font-size: 0.85rem; }
+
+/* Lightbox */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(6, 15, 26, 0.85);
+  backdrop-filter: blur(6px);
+  animation: fade 0.2s ease;
+}
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+.lightbox__close {
+  position: absolute;
+  top: 1.2rem;
+  right: 1.5rem;
+  width: 46px;
+  height: 46px;
+  border: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 1.8rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.lightbox__close:hover { background: rgba(255, 255, 255, 0.24); }
+
+.lightbox__figure {
+  max-width: 720px;
+  width: 100%;
+  background: #fff;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  margin: 0;
+}
+.lightbox__img {
+  aspect-ratio: 16 / 10;
+  display: grid;
+  place-items: center;
+  color: rgba(255, 255, 255, 0.45);
+}
+.lightbox__img[data-tone='0'] { background: linear-gradient(135deg, #0b1f33, #14324f); }
+.lightbox__img[data-tone='1'] { background: linear-gradient(135deg, #12467e, #2f78c4); }
+.lightbox__img[data-tone='2'] { background: linear-gradient(135deg, #14324f, #1a5c9e); }
+.lightbox__img[data-tone='3'] { background: linear-gradient(135deg, #1a5c9e, #0b1f33); }
+.lightbox__img[data-tone='4'] { background: linear-gradient(135deg, #0f2942, #12467e); }
+.lightbox__img svg { width: 80px; height: 80px; }
+
+.lightbox__figure figcaption {
+  display: grid;
+  gap: 0.25rem;
+  padding: 1.5rem;
+}
+.lightbox__cat {
+  justify-self: start;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-500);
+}
+.lightbox__figure figcaption strong {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  color: var(--navy-900);
+}
+.lightbox__figure figcaption span:last-child { color: var(--ink-500); }
