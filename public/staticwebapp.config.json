@@ -1,0 +1,14 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*", "/*.{css,js,ico,png,jpg,jpeg,gif,svg,webp,woff,woff2,ttf,map,json}"]
+  },
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/index.html"
+    }
+  },
+  "globalHeaders": {
+    "cache-control": "public, max-age=3600"
+  }
+}
