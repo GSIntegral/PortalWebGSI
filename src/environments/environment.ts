@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: '__API_URL__', // no cambiar, se sustituye en el despliegue en la nube
+    apiUrl: 'faciliso-cef6fwh9apgta6fa.centralus-01.azurewebsites.net', // no cambiar, se sustituye en el despliegue en la nube
 };
