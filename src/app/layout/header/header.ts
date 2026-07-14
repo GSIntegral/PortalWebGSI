@@ -1,5 +1,9 @@
-import { Component, HostListener, signal } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { isPlatformBrowser } from '@angular/common';
+import { Component, HostListener, inject, PLATFORM_ID, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from '../../core/auth/auth.service';
+import { UserService } from '../../core/user/user.service';
 import { Logo } from '../../shared/logo/logo';
 
 interface NavItem {
@@ -14,8 +18,16 @@ interface NavItem {
   styleUrl: './header.scss',
 })
 export class Header {
+  private userService = inject(UserService);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+  private platformId = inject(PLATFORM_ID);
+
   readonly menuOpen = signal(false);
   readonly scrolled = signal(false);
+
+  /** Usuario autenticado (emite tras el login / rehidratación del token). */
+  readonly currentUser = toSignal(this.userService.user$);
 
   readonly navItems: NavItem[] = [
     { label: 'Inicio', path: '/' },
@@ -31,6 +43,17 @@ export class Header {
 
   closeMenu() {
     this.menuOpen.set(false);
+  }
+
+  logout() {
+    this.closeMenu();
+    this.authService.signOut().subscribe(() => {
+      this.router.navigateByUrl('/').then(() => {
+        if (isPlatformBrowser(this.platformId)) {
+          location.reload();
+        }
+      });
+    });
   }
 
   @HostListener('window:scroll')

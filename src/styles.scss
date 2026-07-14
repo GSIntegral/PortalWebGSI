@@ -248,3 +248,10 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* ---------- Selección ---------- */
 ::selection { background: var(--accent-500); color: var(--navy-900); }
+
+/* ---------- Impresión: ocultar layout del sitio para PDF limpio ---------- */
+@media print {
+  app-header,
+  app-footer { display: none !important; }
+  main#contenido { padding: 0 !important; }
+}
