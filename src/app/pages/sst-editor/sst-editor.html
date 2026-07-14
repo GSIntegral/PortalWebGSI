@@ -1,0 +1,474 @@
+<section class="editor">
+  <div class="container">
+    <header class="editor__head">
+      <div>
+        <p class="editor__eyebrow">Editor de datos SST</p>
+        <h1 class="editor__title">Editor de datos</h1>
+      </div>
+      <div class="editor__actions">
+        <a routerLink="/sst-dashboard" class="editor__btn editor__btn--ghost">← Volver al tablero</a>
+        @if (activeTab() === 'empresas') {
+          <button type="button" class="editor__btn editor__btn--primary" (click)="newClient()">
+            + Nueva empresa
+          </button>
+        }
+      </div>
+    </header>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button
+        type="button"
+        class="tabs__btn"
+        [class.is-active]="activeTab() === 'empresas'"
+        (click)="setTab('empresas')"
+      >
+        Empresas
+      </button>
+      <button
+        type="button"
+        class="tabs__btn"
+        [class.is-active]="activeTab() === 'indicadores'"
+        (click)="setTab('indicadores')"
+      >
+        Indicadores SST
+      </button>
+      <button
+        type="button"
+        class="tabs__btn"
+        [class.is-active]="activeTab() === 'demografia'"
+        (click)="setTab('demografia')"
+      >
+        Demografía
+      </button>
+      <button
+        type="button"
+        class="tabs__btn"
+        [class.is-active]="activeTab() === 'capacitaciones'"
+        (click)="setTab('capacitaciones')"
+      >
+        Capacitaciones
+      </button>
+    </div>
+
+    <!-- ══════════ EMPRESAS ══════════ -->
+    @if (activeTab() === 'empresas') {
+      @if (error()) {
+        <div class="editor__state editor__state--error" role="alert">
+          {{ error() }}
+          <button type="button" class="editor__retry" (click)="reload()">Reintentar</button>
+        </div>
+      }
+
+      @if (showForm()) {
+        <form class="card form" [formGroup]="form" (ngSubmit)="save()">
+          <h3>{{ editingId() ? 'Editar empresa' : 'Nueva empresa' }}</h3>
+          <div class="form__grid">
+            <label class="field field--wide">
+              <span>Nombre *</span>
+              <input type="text" formControlName="name" [class.is-invalid]="invalid('name')" />
+              @if (invalid('name')) {
+                <small class="field__err">El nombre es obligatorio (máx. 150).</small>
+              }
+            </label>
+            <label class="field">
+              <span>Correo</span>
+              <input type="email" formControlName="email" [class.is-invalid]="invalid('email')" />
+              @if (invalid('email')) {
+                <small class="field__err">Correo inválido.</small>
+              }
+            </label>
+            <label class="field">
+              <span>Nivel de riesgo</span>
+              <select formControlName="riskLevel">
+                <option value="">—</option>
+                @for (r of riskLevels; track r) {
+                  <option [value]="r">{{ r }}</option>
+                }
+              </select>
+            </label>
+            <label class="field">
+              <span>ARL</span>
+              <input type="text" formControlName="arl" />
+            </label>
+            <label class="field">
+              <span>Colaboradores</span>
+              <input type="number" formControlName="employees" min="0" [class.is-invalid]="invalid('employees')" />
+              @if (invalid('employees')) {
+                <small class="field__err">Debe ser 0 o mayor.</small>
+              }
+            </label>
+          </div>
+          @if (formError()) {
+            <div class="form__error" role="alert">{{ formError() }}</div>
+          }
+          <div class="form__actions">
+            <button type="button" class="editor__btn editor__btn--ghost" (click)="cancel()">Cancelar</button>
+            <button type="submit" class="editor__btn editor__btn--primary" [disabled]="saving()">
+              {{ saving() ? 'Guardando…' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      }
+
+      @if (loading()) {
+        <div class="editor__state" role="status">Cargando empresas…</div>
+      } @else {
+        <div class="card tablewrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Empresa</th>
+                <th>Correo</th>
+                <th>Riesgo</th>
+                <th>ARL</th>
+                <th class="num">Colab.</th>
+                <th class="actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of clients(); track c.id) {
+                <tr>
+                  <td>{{ c.code }}</td>
+                  <td>{{ c.name }}</td>
+                  <td>{{ c.email }}</td>
+                  <td>{{ c.riskLevel }}</td>
+                  <td>{{ c.arl }}</td>
+                  <td class="num">{{ c.employees }}</td>
+                  <td class="actions">
+                    <button type="button" class="linkbtn" (click)="edit(c)">Editar</button>
+                    <label class="linkbtn linkbtn--logo">
+                      {{ c.hasLogo ? 'Logo ✓' : 'Subir logo' }}
+                      <input type="file" accept="image/*" hidden (change)="onLogoFile(c, $event)" />
+                    </label>
+                    <button type="button" class="linkbtn linkbtn--danger" (click)="remove(c)">Eliminar</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="7" class="empty">No hay empresas registradas.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+
+    <!-- ══════════ INDICADORES ══════════ -->
+    @if (activeTab() === 'indicadores') {
+      <div class="toolbar">
+        <label class="field field--inline">
+          <span>Año</span>
+          <input type="number" [value]="indYear()" min="2000" max="2100" (change)="onIndYearChange($event)" />
+        </label>
+        <span class="toolbar__hint">Edita los indicadores anuales de cada empresa.</span>
+      </div>
+
+      @if (indError()) {
+        <div class="editor__state editor__state--error" role="alert">
+          {{ indError() }}
+          <button type="button" class="editor__retry" (click)="loadIndicators()">Reintentar</button>
+        </div>
+      }
+
+      @if (indShowForm()) {
+        <form class="card form" [formGroup]="indForm" (ngSubmit)="saveIndicator()">
+          <h3>Indicadores {{ indYear() }} — {{ editingClientName() }}</h3>
+          <div class="form__grid">
+            <label class="field">
+              <span>% Autoevaluación</span>
+              <input type="number" formControlName="selfAssessmentPct" min="0" max="100" step="0.01" />
+            </label>
+            <label class="field">
+              <span>% Objetivos</span>
+              <input type="number" formControlName="objectivesPct" min="0" max="100" step="0.01" />
+            </label>
+            <label class="field">
+              <span>Incidentes</span>
+              <input type="number" formControlName="incidents" min="0" />
+            </label>
+            <label class="field">
+              <span>Accidentes</span>
+              <input type="number" formControlName="accidents" min="0" />
+            </label>
+            <label class="field">
+              <span>Días incapacidad</span>
+              <input type="number" formControlName="disabilityDays" min="0" />
+            </label>
+            <label class="field">
+              <span>Enf. laborales</span>
+              <input type="number" formControlName="occupationalDiseases" min="0" />
+            </label>
+            <label class="field">
+              <span>AT mortales</span>
+              <input type="number" formControlName="fatalAccidents" min="0" />
+            </label>
+            <label class="field">
+              <span>Casos nuevos EL</span>
+              <input type="number" formControlName="newOccupationalDiseaseCases" min="0" />
+            </label>
+          </div>
+          @if (indFormError()) {
+            <div class="form__error" role="alert">{{ indFormError() }}</div>
+          }
+          <div class="form__actions">
+            <button type="button" class="editor__btn editor__btn--ghost" (click)="cancelIndicator()">Cancelar</button>
+            <button type="submit" class="editor__btn editor__btn--primary" [disabled]="indSaving()">
+              {{ indSaving() ? 'Guardando…' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      }
+
+      @if (indLoading()) {
+        <div class="editor__state" role="status">Cargando indicadores…</div>
+      } @else {
+        <div class="card tablewrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Empresa</th>
+                <th class="num">% Autoev.</th>
+                <th class="num">% Objet.</th>
+                <th class="num">Incid.</th>
+                <th class="num">Accid.</th>
+                <th class="num">Días inc.</th>
+                <th class="num">Enf. lab.</th>
+                <th class="num">AT mort.</th>
+                <th class="num">Casos nuevos</th>
+                <th class="actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (i of indicators(); track i.clientId) {
+                <tr>
+                  <td>
+                    {{ i.name }}
+                    @if (!i.hasData) {
+                      <span class="badge">sin datos</span>
+                    }
+                  </td>
+                  <td class="num">{{ i.selfAssessmentPct }}</td>
+                  <td class="num">{{ i.objectivesPct }}</td>
+                  <td class="num">{{ i.incidents }}</td>
+                  <td class="num">{{ i.accidents }}</td>
+                  <td class="num">{{ i.disabilityDays }}</td>
+                  <td class="num">{{ i.occupationalDiseases }}</td>
+                  <td class="num">{{ i.fatalAccidents }}</td>
+                  <td class="num">{{ i.newOccupationalDiseaseCases }}</td>
+                  <td class="actions">
+                    <button type="button" class="linkbtn" (click)="editIndicator(i)">Editar</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="10" class="empty">No hay empresas registradas.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+
+    <!-- ══════════ DEMOGRAFÍA ══════════ -->
+    @if (activeTab() === 'demografia') {
+      <div class="toolbar">
+        <label class="field field--inline">
+          <span>Año</span>
+          <input type="number" [value]="demYear()" min="2000" max="2100" (change)="onDemYearChange($event)" />
+        </label>
+        <span class="toolbar__hint">Edita el perfil demográfico anual de cada empresa.</span>
+      </div>
+
+      @if (demError()) {
+        <div class="editor__state editor__state--error" role="alert">
+          {{ demError() }}
+          <button type="button" class="editor__retry" (click)="loadDemography()">Reintentar</button>
+        </div>
+      }
+
+      @if (demShowForm()) {
+        <form class="card form" [formGroup]="demForm" (ngSubmit)="saveDemography()">
+          <h3>Demografía {{ demYear() }} — {{ editingDemClientName() }}</h3>
+          <div class="form__grid">
+            <label class="field">
+              <span>Colaboradores</span>
+              <input type="number" formControlName="employees" min="0" />
+            </label>
+            <label class="field">
+              <span>Hombres</span>
+              <input type="number" formControlName="men" min="0" />
+            </label>
+            <label class="field">
+              <span>Mujeres</span>
+              <input type="number" formControlName="women" min="0" />
+            </label>
+            <label class="field">
+              <span>Edad promedio</span>
+              <input type="number" formControlName="averageAge" min="0" max="120" step="0.1" />
+            </label>
+            <label class="field">
+              <span>Escolaridad (años)</span>
+              <input type="number" formControlName="averageEducationYears" min="0" max="30" step="0.1" />
+            </label>
+            <label class="field">
+              <span>Estrato promedio</span>
+              <input type="number" formControlName="averageStratum" min="0" max="6" step="0.1" />
+            </label>
+            <label class="field">
+              <span>Hijos promedio</span>
+              <input type="number" formControlName="averageChildren" min="0" max="20" step="0.1" />
+            </label>
+            <label class="field">
+              <span>Cargo principal</span>
+              <input type="text" formControlName="mainRole" />
+            </label>
+            <label class="field">
+              <span>EPS principal</span>
+              <input type="text" formControlName="mainHealthProvider" />
+            </label>
+          </div>
+          @if (demFormError()) {
+            <div class="form__error" role="alert">{{ demFormError() }}</div>
+          }
+          <div class="form__actions">
+            <button type="button" class="editor__btn editor__btn--ghost" (click)="cancelDemography()">Cancelar</button>
+            <button type="submit" class="editor__btn editor__btn--primary" [disabled]="demSaving()">
+              {{ demSaving() ? 'Guardando…' : 'Guardar' }}
+            </button>
+          </div>
+        </form>
+      }
+
+      @if (demLoading()) {
+        <div class="editor__state" role="status">Cargando demografía…</div>
+      } @else {
+        <div class="card tablewrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Empresa</th>
+                <th class="num">Colab.</th>
+                <th class="num">Hombres</th>
+                <th class="num">Mujeres</th>
+                <th class="num">Edad</th>
+                <th class="num">Escol.</th>
+                <th class="num">Estrato</th>
+                <th class="num">Hijos</th>
+                <th>Cargo</th>
+                <th>EPS</th>
+                <th class="actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (d of demography(); track d.clientId) {
+                <tr>
+                  <td>
+                    {{ d.name }}
+                    @if (!d.hasData) {
+                      <span class="badge">sin datos</span>
+                    }
+                  </td>
+                  <td class="num">{{ d.employees }}</td>
+                  <td class="num">{{ d.men }}</td>
+                  <td class="num">{{ d.women }}</td>
+                  <td class="num">{{ d.averageAge }}</td>
+                  <td class="num">{{ d.averageEducationYears }}</td>
+                  <td class="num">{{ d.averageStratum }}</td>
+                  <td class="num">{{ d.averageChildren }}</td>
+                  <td>{{ d.mainRole }}</td>
+                  <td>{{ d.mainHealthProvider }}</td>
+                  <td class="actions">
+                    <button type="button" class="linkbtn" (click)="editDemography(d)">Editar</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="11" class="empty">No hay empresas registradas.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+
+    <!-- ══════════ CAPACITACIONES ══════════ -->
+    @if (activeTab() === 'capacitaciones') {
+      <div class="toolbar">
+        <label class="field field--inline">
+          <span>Año</span>
+          <input type="number" [value]="capYear()" min="2000" max="2100" (change)="onCapYearChange($event)" />
+        </label>
+        <span class="toolbar__hint">Plan anual de capacitaciones: realizadas vs meta por mes.</span>
+      </div>
+
+      @if (capError()) {
+        <div class="editor__state editor__state--error" role="alert">
+          {{ capError() }}
+          <button type="button" class="editor__retry" (click)="loadTrainings()">Reintentar</button>
+        </div>
+      }
+
+      @if (capShowForm()) {
+        <div class="card form">
+          <h3>Capacitaciones {{ capYear() }} — {{ editingCapClientName() }}</h3>
+          <div class="months-grid">
+            @for (month of capMonthsForm.controls; track $index) {
+              <div class="month" [formGroup]="month">
+                <span class="month__name">{{ month.value.monthName }}</span>
+                <label class="month__field">
+                  <small>Realizadas</small>
+                  <input type="number" formControlName="completed" min="0" />
+                </label>
+                <label class="month__field">
+                  <small>Meta</small>
+                  <input type="number" formControlName="target" min="0" />
+                </label>
+              </div>
+            }
+          </div>
+          @if (capFormError()) {
+            <div class="form__error" role="alert">{{ capFormError() }}</div>
+          }
+          <div class="form__actions">
+            <button type="button" class="editor__btn editor__btn--ghost" (click)="cancelTraining()">Cancelar</button>
+            <button type="button" class="editor__btn editor__btn--primary" [disabled]="capSaving()" (click)="saveTrainings()">
+              {{ capSaving() ? 'Guardando…' : 'Guardar' }}
+            </button>
+          </div>
+        </div>
+      }
+
+      @if (capLoading()) {
+        <div class="editor__state" role="status">Cargando capacitaciones…</div>
+      } @else {
+        <div class="card tablewrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Empresa</th>
+                <th class="num">Realizadas</th>
+                <th class="num">Meta</th>
+                <th class="num">% Cumplim.</th>
+                <th class="actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (t of trainings(); track t.clientId) {
+                <tr>
+                  <td>{{ t.name }}</td>
+                  <td class="num">{{ t.totalCompleted }}</td>
+                  <td class="num">{{ t.totalTarget }}</td>
+                  <td class="num">{{ t.completionPct }}%</td>
+                  <td class="actions">
+                    <button type="button" class="linkbtn" (click)="editTraining(t)">Editar meses</button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr><td colspan="5" class="empty">No hay empresas registradas.</td></tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    }
+  </div>
+</section>

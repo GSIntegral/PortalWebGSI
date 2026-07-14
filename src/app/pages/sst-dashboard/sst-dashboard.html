@@ -1,0 +1,285 @@
+<section class="sst">
+  <div class="container">
+    <header class="sst__head">
+      <div class="sst__title-wrap">
+        @if (data()?.selectedClientLogo; as logo) {
+          <img class="sst__logo" [src]="logo" [alt]="selectedClientName()" />
+        }
+        <div>
+          <p class="sst__eyebrow">GS Integral S.A.S · SG-SST · Decreto 1072/2015 · Resolución 0312/2019</p>
+          <h1 class="sst__title">Tablero de Control SST</h1>
+          @if (data()) {
+            <p class="sst__subtitle">{{ selectedClientName() }} · año {{ data()!.year }}</p>
+          }
+        </div>
+      </div>
+
+      @if (data(); as d) {
+        <div class="sst__controls no-print">
+          <label class="sst__field">
+            <span>Empresa</span>
+            <select (change)="onClientChange($event)">
+              <option value="" [selected]="!d.selectedClientCode">★ Todas las empresas (consolidado)</option>
+              @for (c of d.availableClients; track c.code) {
+                <option [value]="c.code" [selected]="c.code === d.selectedClientCode">{{ c.name }}</option>
+              }
+            </select>
+          </label>
+          <label class="sst__field">
+            <span>Año</span>
+            <select (change)="onYearChange($event)">
+              @for (y of d.availableYears; track y) {
+                <option [value]="y" [selected]="y === d.year">{{ y }}</option>
+              }
+            </select>
+          </label>
+          <a routerLink="/sst-dashboard/editor" class="sst__print sst__print--ghost">✎ Editar datos</a>
+          <button type="button" class="sst__print sst__print--ghost" [disabled]="exporting()" (click)="exportExcel()">
+            {{ exporting() ? 'Exportando…' : '⬇ Exportar Excel' }}
+          </button>
+          <button type="button" class="sst__print sst__print--ghost" (click)="downloadTemplate()">📄 Plantilla</button>
+          <label class="sst__print sst__print--ghost sst__import">
+            {{ importing() ? 'Importando…' : '⬆ Importar' }}
+            <input type="file" accept=".xlsx" hidden [disabled]="importing()" (change)="onImportFile($event)" />
+          </label>
+          <button type="button" class="sst__print" (click)="print()">🖨 Imprimir / PDF</button>
+        </div>
+      }
+    </header>
+
+    @if (importResult(); as res) {
+      <div class="sst__import-result no-print" role="status">
+        <span>
+          Importación completada: <b>{{ res.companies }}</b> empresas, <b>{{ res.indicators }}</b> indicadores,
+          <b>{{ res.trainings }}</b> capacitaciones, <b>{{ res.demography }}</b> demografía.
+          @if (res.errors.length) {
+            <span class="sst__import-errors">· {{ res.errors.length }} advertencia(s): {{ res.errors[0] }}</span>
+          }
+        </span>
+        <button type="button" (click)="dismissImportResult()">✕</button>
+      </div>
+    } @else if (importError()) {
+      <div class="sst__import-result sst__import-result--error no-print" role="alert">
+        <span>{{ importError() }}</span>
+        <button type="button" (click)="dismissImportResult()">✕</button>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="sst__state" role="status">Cargando tablero…</div>
+    } @else if (error()) {
+      <div class="sst__state sst__state--error" role="alert">
+        {{ error() }}
+        <button type="button" class="sst__retry" (click)="load(null, null)">Reintentar</button>
+      </div>
+    } @else if (data(); as d) {
+      <!-- KPIs -->
+      <div class="sst__kpis">
+        @for (k of kpiCards(); track k.label) {
+          <article class="kpi">
+            <span class="kpi__bar" [style.background]="k.accent"></span>
+            <span class="kpi__label">{{ k.label }}</span>
+            <span class="kpi__value" [style.color]="k.accent">{{ k.value }}</span>
+            @if (k.foot) {
+              <span class="kpi__foot">{{ k.foot }}</span>
+            }
+          </article>
+        }
+
+        <!-- Cliente seleccionado -->
+        <article class="kpi kpi--client">
+          <span class="kpi__label">Cliente seleccionado</span>
+          @if (data()?.selectedClientLogo; as logo) {
+            <img class="kpi__logo" [src]="logo" [alt]="selectedClientName()" />
+          } @else if (d.selectedClientCode) {
+            <span class="kpi__client-avatar">{{ clientInitials() }}</span>
+          } @else {
+            <span class="kpi__client-mark">GS Integral</span>
+          }
+          <span class="kpi__client-name">{{ selectedClientName() }}</span>
+        </article>
+      </div>
+
+      <!-- Gráficos -->
+      <div class="sst__grid sst__grid--2">
+        <!-- Capacitaciones: realizadas vs meta (línea) -->
+        <article class="panel">
+          <h3>Capacitaciones: realizadas vs meta por mes <span class="tag">SG-SST plan anual</span></h3>
+          @if (trainingChart(); as t) {
+            <div class="linechart">
+              <svg [attr.viewBox]="'0 0 ' + t.w + ' ' + t.h" width="100%" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Capacitaciones realizadas vs meta por mes">
+                @for (g of t.grid; track g.y) {
+                  <line [attr.x1]="g.x1" [attr.x2]="g.x2" [attr.y1]="g.y" [attr.y2]="g.y" class="lc-grid" />
+                  <text [attr.x]="g.x1 - 6" [attr.y]="g.y + 3" text-anchor="end" class="lc-axis">{{ g.v }}</text>
+                }
+                <polyline [attr.points]="t.metaPts" fill="none" stroke="var(--accent-500)" stroke-width="2" stroke-dasharray="5 4" />
+                <polyline [attr.points]="t.realPts" fill="none" stroke="var(--primary-500)" stroke-width="2.5" />
+                @for (p of t.meta; track $index) {
+                  <circle [attr.cx]="p.cx" [attr.cy]="p.cy" r="2.5" fill="var(--accent-500)" />
+                }
+                @for (p of t.real; track $index) {
+                  <circle [attr.cx]="p.cx" [attr.cy]="p.cy" r="3.5" fill="#fff" stroke="var(--primary-500)" stroke-width="2" />
+                  <text [attr.x]="p.cx" [attr.y]="p.cy - 8" text-anchor="middle" class="lc-value">{{ p.v }}</text>
+                }
+                @for (l of t.labels; track l.x) {
+                  <text [attr.x]="l.x" [attr.y]="t.baseline + 18" text-anchor="middle" class="lc-axis">{{ l.text }}</text>
+                }
+              </svg>
+            </div>
+            <div class="legend">
+              <span><i class="dot" style="background: var(--primary-500)"></i> Realizadas</span>
+              <span><i class="dot" style="background: var(--accent-500)"></i> Meta</span>
+            </div>
+          } @else {
+            <p class="panel__empty">Sin plan de capacitación registrado.</p>
+          }
+        </article>
+
+        <!-- Cumplimiento de indicadores -->
+        <article class="panel">
+          <h3>Cumplimiento de indicadores (%)</h3>
+          <div class="hbars">
+            @for (b of complianceBars(); track b.label) {
+              <div class="hbars__row">
+                <span class="hbars__label">{{ b.label }}</span>
+                <span class="hbars__track">
+                  <span class="hbars__fill" [style.width.%]="b.width" [style.background]="b.accent"></span>
+                </span>
+                <span class="hbars__value">{{ b.display }}</span>
+              </div>
+            }
+          </div>
+        </article>
+
+        <!-- Indicadores de resultado SST (barras verticales) -->
+        <article class="panel">
+          <h3>Indicadores de resultado SST <span class="tag">conteo de casos</span></h3>
+          <div class="vbars" [style.height.px]="chartHeight + 28">
+            @for (b of resultBars(); track b.label) {
+              <div class="vbars__col" [title]="b.label + ': ' + b.display">
+                <span class="vbars__value">{{ b.display }}</span>
+                <span class="vbars__bar" [style.height.px]="b.heightH" [style.background]="b.accent"></span>
+                <span class="vbars__label">{{ b.label }}</span>
+              </div>
+            }
+          </div>
+        </article>
+
+        <!-- Días de incapacidad + Distribución por género -->
+        <article class="panel">
+          <div class="split">
+            <div class="split__col">
+              <h3>Días de incapacidad</h3>
+              <div class="vbars vbars--pair" [style.height.px]="chartHeight + 28">
+                @for (b of disabilityCompare(); track b.label) {
+                  <div class="vbars__col" [title]="b.label + ': ' + b.display">
+                    <span class="vbars__value">{{ b.display }}</span>
+                    <span class="vbars__bar" [style.height.px]="b.heightH" [style.background]="b.accent"></span>
+                    <span class="vbars__label">{{ b.label }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <div class="split__col">
+              <h3>Distribución por género</h3>
+              @if (gender(); as g) {
+                <div class="donut">
+                  <svg viewBox="0 0 140 140" width="150" height="150" aria-label="Distribución por género">
+                    <circle cx="70" cy="70" r="52" fill="none" stroke="#eef2f7" stroke-width="18" />
+                    <circle cx="70" cy="70" r="52" fill="none" stroke="var(--primary-500)" stroke-width="18"
+                      [attr.stroke-dasharray]="g.menDash + ' ' + g.circ" transform="rotate(-90 70 70)" />
+                    <circle cx="70" cy="70" r="52" fill="none" stroke="#f5a623" stroke-width="18"
+                      [attr.stroke-dasharray]="g.womenDash + ' ' + g.circ" [attr.stroke-dashoffset]="-g.menDash" transform="rotate(-90 70 70)" />
+                    <text x="70" y="66" text-anchor="middle" class="donut__total">{{ int(g.total) }}</text>
+                    <text x="70" y="84" text-anchor="middle" class="donut__cap">total</text>
+                  </svg>
+                  <ul class="donut__legend">
+                    <li><i class="dot" style="background: var(--primary-500)"></i> Hombres <b>{{ g.menPct }}%</b></li>
+                    <li><i class="dot" style="background: #f5a623"></i> Mujeres <b>{{ g.womenPct }}%</b></li>
+                  </ul>
+                </div>
+              }
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <!-- Tabla de empresas -->
+      <article class="panel">
+        <h3>Detalle por empresa</h3>
+        <div class="tablewrap">
+          <table class="tbl">
+            <thead>
+              <tr>
+                <th>Empresa</th>
+                <th>Riesgo</th>
+                <th>ARL</th>
+                <th class="num">Colab.</th>
+                <th class="num">% Autoeval</th>
+                <th class="num">% Objetivos</th>
+                <th class="num">% Capac.</th>
+                <th class="num">Incid.</th>
+                <th class="num">Accid.</th>
+                <th class="num">Días inc.</th>
+                <th class="num">Enf. lab.</th>
+                <th class="num">AT mort.</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (c of d.companies; track c.code) {
+                <tr>
+                  <td>{{ c.name }}</td>
+                  <td>{{ c.riskLevel }}</td>
+                  <td>{{ c.arl }}</td>
+                  <td class="num">{{ int(c.employees) }}</td>
+                  <td class="num">{{ dec(c.selfAssessmentPct) }}</td>
+                  <td class="num">{{ dec(c.objectivesPct) }}</td>
+                  <td class="num">{{ dec(c.trainingPct) }}</td>
+                  <td class="num">{{ int(c.incidents) }}</td>
+                  <td class="num">{{ int(c.accidents) }}</td>
+                  <td class="num">{{ int(c.disabilityDays) }}</td>
+                  <td class="num">{{ int(c.occupationalDiseases) }}</td>
+                  <td class="num">{{ int(c.fatalAccidents) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </article>
+
+      <!-- Diccionario de indicadores -->
+      @if (d.dictionary.length) {
+        <article class="panel">
+          <h3>Diccionario de indicadores</h3>
+          <div class="tablewrap">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th class="num">N°</th>
+                  <th>Indicador</th>
+                  <th>Tipo</th>
+                  <th>Fórmula</th>
+                  <th>Explicación</th>
+                  <th>Meta</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (i of d.dictionary; track i.number) {
+                  <tr>
+                    <td class="num">{{ i.number }}</td>
+                    <td>{{ i.name }}</td>
+                    <td>{{ i.type }}</td>
+                    <td>{{ i.formula }}</td>
+                    <td>{{ i.explanation }}</td>
+                    <td>{{ i.target }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </article>
+      }
+    }
+  </div>
+</section>
