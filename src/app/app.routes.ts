@@ -29,6 +29,12 @@ export const routes: Routes = [
     title: 'Registro Fotográfico | GS Integral SAS',
   },
   {
+    path: 'registro-fotografico/editor',
+    canActivate: [AuthGuard],
+    loadComponent: () => import('./pages/galeria-editor/galeria-editor').then((m) => m.GaleriaEditor),
+    title: 'Gestión de fotografías | GS Integral SAS',
+  },
+  {
     path: 'login',
     canActivate: [NoAuthGuard],
     loadComponent: () => import('./pages/login/login').then((m) => m.Login),

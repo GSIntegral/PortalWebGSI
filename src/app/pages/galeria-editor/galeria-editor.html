@@ -1,0 +1,146 @@
+<section class="editor">
+  <div class="container">
+    <header class="editor__head">
+      <div>
+        <p class="editor__eyebrow">Registro fotográfico</p>
+        <h1 class="editor__title">Gestión de fotografías</h1>
+      </div>
+      <div class="editor__actions">
+        <a routerLink="/registro-fotografico" class="editor__btn editor__btn--ghost">← Ver galería</a>
+        <button type="button" class="editor__btn editor__btn--primary" (click)="newPhoto()">
+          + Nueva fotografía
+        </button>
+      </div>
+    </header>
+
+    @if (error()) {
+      <div class="editor__state editor__state--error" role="alert">
+        {{ error() }}
+        <button type="button" class="editor__retry" (click)="reload()">Reintentar</button>
+      </div>
+    }
+
+    @if (showForm()) {
+      <form class="card form" [formGroup]="form" (ngSubmit)="save()">
+        <h3>{{ editingId() ? 'Editar fotografía' : 'Nueva fotografía' }}</h3>
+
+        <div class="form__body">
+          <div class="form__grid">
+            <label class="field field--wide">
+              <span>Título *</span>
+              <input type="text" formControlName="title" [class.is-invalid]="invalid('title')" />
+              @if (invalid('title')) {
+                <small class="field__err">El título es obligatorio (máx. 150).</small>
+              }
+            </label>
+
+            <label class="field">
+              <span>Categoría *</span>
+              <select formControlName="category" [class.is-invalid]="invalid('category')">
+                <option value="">—</option>
+                @for (cat of categories; track cat) {
+                  <option [value]="cat">{{ label(cat) }}</option>
+                }
+              </select>
+              @if (invalid('category')) {
+                <small class="field__err">Selecciona una categoría.</small>
+              }
+            </label>
+
+            <label class="field">
+              <span>Lugar</span>
+              <input type="text" formControlName="place" placeholder="Ej. Guatemala" />
+            </label>
+
+            <label class="field field--wide">
+              <span>Imagen {{ editingId() ? '(opcional)' : '*' }}</span>
+              <input type="file" accept="image/*" (change)="onImageFile($event)" />
+              <small class="field__hint">
+                JPG, PNG, GIF, BMP, WEBP o SVG. Máximo 3 MB.
+                @if (editingId()) {
+                  Si no eliges archivo se conserva la imagen actual.
+                }
+              </small>
+            </label>
+          </div>
+
+          <div class="preview">
+            @if (imagePreview(); as src) {
+              <img [src]="src" alt="Vista previa de la fotografía" />
+            } @else {
+              <span class="preview__empty">Vista previa</span>
+            }
+          </div>
+        </div>
+
+        @if (formError()) {
+          <div class="form__error" role="alert">{{ formError() }}</div>
+        }
+
+        <div class="form__actions">
+          <button type="button" class="editor__btn editor__btn--ghost" (click)="cancel()">Cancelar</button>
+          <button type="submit" class="editor__btn editor__btn--primary" [disabled]="saving()">
+            {{ saving() ? 'Guardando…' : 'Guardar' }}
+          </button>
+        </div>
+      </form>
+    }
+
+    @if (loading()) {
+      <div class="editor__state" role="status">Cargando fotografías…</div>
+    } @else if (!error()) {
+      <div class="card tablewrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th class="thumb">Imagen</th>
+              <th>Título</th>
+              <th>Categoría</th>
+              <th>Lugar</th>
+              <th class="actions">Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (photo of photos(); track photo.id) {
+              <tr>
+                <td class="thumb">
+                  <img [src]="photo.imageUrl" [alt]="photo.title" loading="lazy" />
+                </td>
+                <td>{{ photo.title }}</td>
+                <td>{{ label(photo.category) }}</td>
+                <td>{{ photo.place || '—' }}</td>
+                <td class="actions">
+                  <button type="button" class="linkbtn" (click)="edit(photo)">Editar</button>
+                  <button type="button" class="linkbtn linkbtn--danger" (click)="remove(photo)">
+                    Eliminar
+                  </button>
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="5" class="empty">Aún no hay fotografías cargadas.</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      @if (totalPages() > 1) {
+        <nav class="pager" aria-label="Paginación de fotografías">
+          <button type="button" class="pager__btn" [disabled]="page() === 1" (click)="goTo(page() - 1)">
+            ‹ Anterior
+          </button>
+          <span class="pager__count">Página {{ page() }} de {{ totalPages() }} · {{ totalCount() }} fotografías</span>
+          <button
+            type="button"
+            class="pager__btn"
+            [disabled]="page() === totalPages()"
+            (click)="goTo(page() + 1)"
+          >
+            Siguiente ›
+          </button>
+        </nav>
+      }
+    }
+  </div>
+</section>

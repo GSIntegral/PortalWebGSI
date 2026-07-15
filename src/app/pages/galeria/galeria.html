@@ -4,6 +4,9 @@
       <nav class="breadcrumb"><a routerLink="/">Inicio</a> <span>›</span> <span>Registro Fotográfico</span></nav>
       <h1>Registro Fotográfico</h1>
       <p>Momentos de nuestras formaciones, certificaciones y acompañamientos en la región.</p>
+      @if (currentUser()) {
+        <a routerLink="/registro-fotografico/editor" class="page-hero__admin">✎ Gestionar fotografías</a>
+      }
     </div>
   </div>
 </section>
@@ -11,6 +14,15 @@
 <section class="section">
   <div class="container">
     <div class="filters" role="tablist" aria-label="Filtrar fotografías">
+      <button
+        class="filter-chip"
+        [class.is-active]="filter() === null"
+        (click)="setFilter(null)"
+        role="tab"
+        [attr.aria-selected]="filter() === null"
+      >
+        Todas
+      </button>
       @for (cat of categories; track cat) {
         <button
           class="filter-chip"
@@ -19,25 +31,111 @@
           role="tab"
           [attr.aria-selected]="filter() === cat"
         >
-          {{ cat }}
+          {{ label(cat) }}
         </button>
       }
     </div>
 
-    <div class="gallery">
-      @for (photo of filtered(); track photo.id) {
-        <button class="tile reveal" reveal [revealDelay]="$index * 50" (click)="open(photo)" [attr.data-tone]="photo.id % 5">
-          <span class="tile__img" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m3 17 5-4 4 3 3-2 6 5"/></svg>
-          </span>
-          <span class="tile__overlay">
-            <span class="tile__cat">{{ photo.category }}</span>
-            <span class="tile__title">{{ photo.title }}</span>
-            <span class="tile__place">{{ photo.place }}</span>
-          </span>
-        </button>
+    @if (error()) {
+      <div class="gallery__state gallery__state--error" role="alert">
+        {{ error() }}
+        <button type="button" class="gallery__retry" (click)="reload()">Reintentar</button>
+      </div>
+    } @else if (loading()) {
+      <div class="gallery" aria-busy="true">
+        @for (skeleton of [1, 2, 3, 4, 5, 6, 7, 8]; track skeleton) {
+          <div class="tile tile--skeleton" [attr.data-tone]="$index % 5" aria-hidden="true"></div>
+        }
+      </div>
+    } @else if (photos().length === 0) {
+      <div class="gallery__state" role="status">
+        Aún no hay fotografías publicadas en esta categoría.
+      </div>
+    } @else {
+      <div class="gallery">
+        @for (photo of photos(); track photo.id) {
+          <button
+            class="tile reveal"
+            reveal
+            [revealDelay]="$index * 50"
+            (click)="open(photo)"
+            [attr.data-tone]="$index % 5"
+            [attr.aria-label]="'Ampliar: ' + photo.title"
+          >
+            <img
+              class="tile__img"
+              [src]="photo.imageUrl"
+              [alt]="photo.title"
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="tile__overlay">
+              <span class="tile__cat">{{ label(photo.category) }}</span>
+              <span class="tile__title">{{ photo.title }}</span>
+              @if (photo.place) {
+                <span class="tile__place">{{ photo.place }}</span>
+              }
+            </span>
+          </button>
+        }
+      </div>
+
+      @if (totalPages() > 1) {
+        <nav class="pager" aria-label="Paginación del registro fotográfico">
+          <button
+            type="button"
+            class="pager__btn"
+            [disabled]="!hasPrevious()"
+            (click)="goTo(page() - 1)"
+            aria-label="Página anterior"
+          >
+            ‹
+          </button>
+
+          @if (pageNumbers()[0] > 1) {
+            <button type="button" class="pager__btn" (click)="goTo(1)">1</button>
+            @if (pageNumbers()[0] > 2) {
+              <span class="pager__gap" aria-hidden="true">…</span>
+            }
+          }
+
+          @for (n of pageNumbers(); track n) {
+            <button
+              type="button"
+              class="pager__btn"
+              [class.is-active]="n === page()"
+              [attr.aria-current]="n === page() ? 'page' : null"
+              (click)="goTo(n)"
+            >
+              {{ n }}
+            </button>
+          }
+
+          @if (pageNumbers()[pageNumbers().length - 1] < totalPages()) {
+            @if (pageNumbers()[pageNumbers().length - 1] < totalPages() - 1) {
+              <span class="pager__gap" aria-hidden="true">…</span>
+            }
+            <button type="button" class="pager__btn" (click)="goTo(totalPages())">
+              {{ totalPages() }}
+            </button>
+          }
+
+          <button
+            type="button"
+            class="pager__btn"
+            [disabled]="!hasNext()"
+            (click)="goTo(page() + 1)"
+            aria-label="Página siguiente"
+          >
+            ›
+          </button>
+        </nav>
+
+        <p class="pager__count">
+          Página {{ page() }} de {{ totalPages() }} · {{ totalCount() }} fotografías
+        </p>
       }
-    </div>
+    }
   </div>
 </section>
 
@@ -45,13 +143,13 @@
   <div class="lightbox" (click)="close()">
     <button class="lightbox__close" (click)="close()" aria-label="Cerrar">&times;</button>
     <figure class="lightbox__figure" (click)="$event.stopPropagation()">
-      <div class="lightbox__img" [attr.data-tone]="photo.id % 5">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="m3 17 5-4 4 3 3-2 6 5"/></svg>
-      </div>
+      <img class="lightbox__img" [src]="photo.imageUrl" [alt]="photo.title" />
       <figcaption>
-        <span class="lightbox__cat">{{ photo.category }}</span>
+        <span class="lightbox__cat">{{ label(photo.category) }}</span>
         <strong>{{ photo.title }}</strong>
-        <span>{{ photo.place }}</span>
+        @if (photo.place) {
+          <span>{{ photo.place }}</span>
+        }
       </figcaption>
     </figure>
   </div>
