@@ -22,6 +22,13 @@
         </div>
       }
 
+      @if (error()) {
+        <div class="alert alert--error" role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6" stroke-linecap="round"/><path d="M12 16.5v.5" stroke-linecap="round"/></svg>
+          No pudimos enviar tu mensaje. Inténtalo de nuevo o escríbenos a direcciongeneral&#64;gsintegral.page
+        </div>
+      }
+
       <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <div class="form__row">
           <div class="field">
@@ -62,8 +69,8 @@
           @if (invalid('mensaje')) { <span class="field__error">Escribe tu mensaje (mín. 10 caracteres).</span> }
         </div>
 
-        <button type="submit" class="btn contact__submit">
-          Enviar mensaje
+        <button type="submit" class="btn contact__submit" [disabled]="sending()">
+          {{ sending() ? 'Enviando…' : 'Enviar mensaje' }}
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m22 2-7 20-4-9-9-4 20-7Z" stroke-linejoin="round"/></svg>
         </button>
       </form>
@@ -98,7 +105,8 @@
             </span>
             <div>
               <strong>Correo</strong>
-              <a href="mailto:contacto@gsintegral.com">contacto&#64;gsintegral.com</a>
+              <a href="mailto:direcciongeneral@gsintegral.page">direcciongeneral&#64;gsintegral.page</a><br />
+              <a href="mailto:direcciongeneral@gsintegralsas.com">direcciongeneral&#64;gsintegralsas.com</a>
             </div>
           </li>
           <li>
