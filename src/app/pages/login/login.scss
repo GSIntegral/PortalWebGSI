@@ -43,9 +43,9 @@
   display: flex;
   align-items: flex-start;
   gap: 0.6rem;
-  background: #fdecec;
-  border: 1px solid #f5c2c2;
-  color: #a12626;
+  background: var(--err-bg);
+  border: 1px solid var(--err-border);
+  color: var(--err-fg);
   border-radius: var(--r-sm);
   padding: 0.85rem 1rem;
   font-size: 0.9rem;
@@ -73,7 +73,7 @@
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--navy-900);
+  color: var(--heading);
 }
 .field input {
   width: 100%;
@@ -92,10 +92,10 @@
   box-shadow: 0 0 0 3px rgba(47, 120, 196, 0.15);
 }
 .field input.is-invalid {
-  border-color: #d64545;
+  border-color: var(--err-field);
 }
 .field__error {
-  color: #c0392b;
+  color: var(--err-text);
   font-size: 0.82rem;
 }
 
@@ -112,7 +112,7 @@
   right: 0.5rem;
   background: transparent;
   border: none;
-  color: var(--primary-500);
+  color: var(--link);
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.82rem;
@@ -120,7 +120,7 @@
   padding: 0.35rem 0.5rem;
 }
 .field__toggle:hover {
-  color: var(--primary-600);
+  color: var(--link-strong);
 }
 
 .login__row {
@@ -132,10 +132,10 @@
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.86rem;
-  color: var(--primary-500);
+  color: var(--link);
 }
 .login__forgot:hover {
-  color: var(--primary-600);
+  color: var(--link-strong);
   text-decoration: underline;
 }
 
@@ -148,10 +148,10 @@
 .login__alt a {
   font-family: var(--font-display);
   font-weight: 600;
-  color: var(--primary-500);
+  color: var(--link);
 }
 .login__alt a:hover {
-  color: var(--primary-600);
+  color: var(--link-strong);
   text-decoration: underline;
 }
 
@@ -162,11 +162,11 @@
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.86rem;
-  color: var(--primary-500);
+  color: var(--link);
   cursor: pointer;
 }
 .login__linkbtn:hover {
-  color: var(--primary-600);
+  color: var(--link-strong);
   text-decoration: underline;
 }
 

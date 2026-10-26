@@ -5,10 +5,9 @@
 
   &__head {
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.25rem;
     margin-bottom: 1.5rem;
   }
 
@@ -24,7 +23,7 @@
     max-width: 120px;
     object-fit: contain;
     border-radius: var(--r-sm, 8px);
-    background: #fff;
+    background: #fff; /* los logos de cliente se diseñan sobre blanco */
     padding: 4px;
     border: 1px solid var(--line, #e6eaf0);
   }
@@ -35,7 +34,7 @@
     font-weight: 700;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: var(--primary-500);
+    color: var(--link);
   }
 
   &__title {
@@ -49,71 +48,7 @@
     margin: 0.35rem 0 0;
     font-size: 0.85rem;
     font-weight: 600;
-    color: var(--primary-500, #1a5c9e);
-  }
-
-  &__controls {
-    display: flex;
-    align-items: flex-end;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-  }
-
-  &__field {
-    display: inline-flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--ink-500, #64748b);
-
-    select {
-      padding: 0.5rem 0.7rem;
-      min-width: 180px;
-      max-width: 260px;
-      border: 1px solid var(--line, #e6eaf0);
-      border-radius: var(--r-sm, 8px);
-      background: #fff;
-      font-size: 0.85rem;
-      font-weight: 600;
-      text-transform: none;
-      letter-spacing: 0;
-      color: var(--ink-900, #0b1f33);
-      cursor: pointer;
-    }
-  }
-
-  &__print {
-    align-self: flex-end;
-    padding: 0.55rem 1rem;
-    border: 1px solid var(--primary-500, #1a5c9e);
-    border-radius: var(--r-sm, 8px);
-    background: var(--primary-500, #1a5c9e);
-    color: #fff;
-    font-size: 0.85rem;
-    font-weight: 600;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background 0.2s ease;
-
-    &:hover {
-      background: var(--primary-600, #12406e);
-    }
-
-    &--ghost {
-      background: #fff;
-      color: var(--primary-600, #12406e);
-
-      &:hover {
-        background: var(--surface-2, #eef2f7);
-      }
-    }
-  }
-
-  &__import {
-    cursor: pointer;
+    color: var(--link);
   }
 
   &__import-result {
@@ -124,15 +59,15 @@
     margin-bottom: 1rem;
     padding: 0.7rem 1rem;
     border-radius: var(--r-md, 12px);
-    background: #e8f5ee;
-    border: 1px solid #b7e0c6;
-    color: #1e6b3f;
+    background: var(--ok-bg);
+    border: 1px solid var(--ok-border);
+    color: var(--ok-fg);
     font-size: 0.85rem;
 
     &--error {
-      background: #fdf3f3;
-      border-color: #f3c9cb;
-      color: #b4232a;
+      background: var(--err-bg);
+      border-color: var(--err-border);
+      color: var(--err-fg);
     }
 
     button {
@@ -146,21 +81,21 @@
   }
 
   &__import-errors {
-    color: #a15c00;
+    color: var(--warn-fg);
   }
 
   &__state {
     padding: 2rem;
     text-align: center;
-    background: #fff;
+    background: var(--surface);
     border: 1px solid var(--line, #e6eaf0);
     border-radius: var(--r-md, 12px);
     color: var(--ink-500, #64748b);
 
     &--error {
-      color: #b4232a;
-      border-color: #f3c9cb;
-      background: #fdf3f3;
+      color: var(--err-fg);
+      border-color: var(--err-border);
+      background: var(--err-bg);
     }
   }
 
@@ -170,7 +105,7 @@
     padding: 0.35rem 0.9rem;
     border: 0;
     border-radius: var(--r-sm, 8px);
-    background: var(--primary-500, #1a5c9e);
+    background: var(--btn-primary);
     color: #fff;
     font: inherit;
     cursor: pointer;
@@ -197,7 +132,7 @@
   flex-direction: column;
   gap: 0.15rem;
   padding: 0.9rem 1rem;
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line, #e6eaf0);
   border-radius: var(--r-md, 12px);
   box-shadow: var(--shadow-sm, 0 1px 2px rgba(16, 32, 55, 0.06));
@@ -227,7 +162,7 @@
 }
 
 .panel {
-  background: #fff;
+  background: var(--surface);
   border: 1px solid var(--line, #e6eaf0);
   border-radius: var(--r-md, 12px);
   box-shadow: var(--shadow-sm, 0 1px 2px rgba(16, 32, 55, 0.06));
@@ -252,8 +187,8 @@
     font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
-    color: var(--primary-500, #1a5c9e);
-    background: rgba(26, 92, 158, 0.1);
+    color: var(--link);
+    background: var(--tint);
     border-radius: 999px;
   }
 }
@@ -304,11 +239,11 @@
 
     &--target {
       width: 100%;
-      background: #cbd5e1;
+      background: var(--track-strong);
     }
     &--real {
       width: 62%;
-      background: var(--primary-500, #1a5c9e);
+      background: var(--btn-primary);
     }
   }
   &__label {
@@ -342,7 +277,7 @@
   }
   &__track {
     height: 12px;
-    background: #eef2f7;
+    background: var(--track);
     border-radius: 999px;
     overflow: hidden;
   }
@@ -408,12 +343,15 @@
     height: 38px;
     max-width: 90px;
     object-fit: contain;
+    padding: 3px 6px;
+    border-radius: 6px;
+    background: #fff; /* logos de cliente sobre blanco, también en modo oscuro */
   }
   .kpi__client-mark {
     font-family: var(--font-display, inherit);
     font-weight: 800;
     font-size: 1.05rem;
-    color: var(--primary-600, #12406e);
+    color: var(--link-strong);
   }
   .kpi__client-avatar {
     display: inline-flex;
@@ -422,8 +360,8 @@
     width: 42px;
     height: 42px;
     border-radius: 50%;
-    background: rgba(26, 92, 158, 0.1);
-    color: var(--primary-600, #12406e);
+    background: var(--tint);
+    color: var(--link-strong);
     font-family: var(--font-display, inherit);
     font-weight: 800;
     font-size: 1.05rem;
@@ -448,7 +386,7 @@
     overflow: visible;
   }
   .lc-grid {
-    stroke: #eef2f7;
+    stroke: var(--track);
     stroke-width: 1;
   }
   .lc-axis {
@@ -458,7 +396,7 @@
   .lc-value {
     font-size: 9px;
     font-weight: 700;
-    fill: var(--primary-600, #12406e);
+    fill: var(--link-strong);
   }
 }
 
@@ -545,7 +483,7 @@
     font-variant-numeric: tabular-nums;
   }
   tbody tr:hover {
-    background: rgba(26, 92, 158, 0.04);
+    background: var(--row-hover);
   }
 }
 
@@ -565,25 +503,3 @@
 }
 
 /* ── Impresión / PDF ──────────────────────────────────────────── */
-@media print {
-  .sst {
-    padding: 0;
-    background: #fff;
-  }
-  .no-print {
-    display: none !important;
-  }
-  .sst__kpis {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  .panel,
-  .kpi,
-  .tablewrap {
-    break-inside: avoid;
-    page-break-inside: avoid;
-    box-shadow: none;
-  }
-  .tbl tbody tr:hover {
-    background: none;
-  }
-}

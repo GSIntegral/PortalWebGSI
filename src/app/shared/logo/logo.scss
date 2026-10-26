@@ -4,15 +4,15 @@
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  color: var(--navy-900);
+  color: var(--heading);
 }
-.logo__link:hover { color: var(--navy-900); }
+.logo__link:hover { color: var(--heading); }
 
 .logo__mark {
   height: 42px;
   width: auto;
   flex: none;
-  color: var(--navy-900);
+  color: var(--heading);
 }
 
 .logo__word {

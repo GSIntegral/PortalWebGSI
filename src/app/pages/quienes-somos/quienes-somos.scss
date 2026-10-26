@@ -6,7 +6,7 @@
 }
 .about__text h2 { margin-bottom: 1.25rem; }
 .about__text p { color: var(--ink-500); font-size: 1.05rem; }
-.about__text strong { color: var(--navy-900); }
+.about__text strong { color: var(--heading); }
 .about__text .btn { margin-top: 1rem; }
 
 .about__aside {
@@ -54,7 +54,7 @@
   height: 56px;
   border-radius: var(--r-md);
   background: var(--surface-2);
-  color: var(--primary-500);
+  color: var(--link);
   margin-bottom: 1.25rem;
 }
 .mvv__icon svg { width: 26px; height: 26px; }

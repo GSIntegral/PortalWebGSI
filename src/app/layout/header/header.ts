@@ -3,6 +3,7 @@ import { Component, HostListener, inject, PLATFORM_ID, signal } from '@angular/c
 import { toSignal } from '@angular/core/rxjs-interop';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
+import { SchemeService } from '../../core/theme/scheme.service';
 import { UserService } from '../../core/user/user.service';
 import { Logo } from '../../shared/logo/logo';
 
@@ -22,6 +23,15 @@ export class Header {
   private authService = inject(AuthService);
   private router = inject(Router);
   private platformId = inject(PLATFORM_ID);
+
+  private schemeService = inject(SchemeService);
+
+  /** Modo oscuro activo (para el texto accesible del botón; los iconos cambian por CSS). */
+  readonly isDark = this.schemeService.isDark;
+
+  toggleScheme() {
+    this.schemeService.toggle();
+  }
 
   readonly menuOpen = signal(false);
   readonly scrolled = signal(false);

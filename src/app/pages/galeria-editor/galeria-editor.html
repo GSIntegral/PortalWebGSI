@@ -5,9 +5,9 @@
         <p class="editor__eyebrow">Registro fotográfico</p>
         <h1 class="editor__title">Gestión de fotografías</h1>
       </div>
-      <div class="editor__actions">
-        <a routerLink="/registro-fotografico" class="editor__btn editor__btn--ghost">← Ver galería</a>
-        <button type="button" class="editor__btn editor__btn--primary" (click)="newPhoto()">
+      <div class="tbar editor__actions">
+        <a routerLink="/registro-fotografico" class="tbtn tbtn--ghost">← Ver galería</a>
+        <button type="button" class="tbtn" (click)="newPhoto()">
           + Nueva fotografía
         </button>
       </div>
@@ -78,8 +78,8 @@
         }
 
         <div class="form__actions">
-          <button type="button" class="editor__btn editor__btn--ghost" (click)="cancel()">Cancelar</button>
-          <button type="submit" class="editor__btn editor__btn--primary" [disabled]="saving()">
+          <button type="button" class="tbtn tbtn--ghost" (click)="cancel()">Cancelar</button>
+          <button type="submit" class="tbtn" [disabled]="saving()">
             {{ saving() ? 'Guardando…' : 'Guardar' }}
           </button>
         </div>

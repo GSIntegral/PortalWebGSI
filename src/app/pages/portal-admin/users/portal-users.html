@@ -1,6 +1,6 @@
 <div class="panel__head">
   <div class="panel__tools">
-    <label class="field">
+    <label class="tfield">
       <span>Filtrar por empresa</span>
       <select [value]="filterClientId()" (change)="onFilterChange($event)">
         <option value="">Todas las empresas</option>
@@ -12,7 +12,7 @@
   </div>
   <button
     type="button"
-    class="btn-a btn-a--primary"
+    class="tbtn"
     [disabled]="clients().length === 0"
     (click)="newUser()"
   >
@@ -79,8 +79,8 @@
       <div class="form__error" role="alert">{{ formError() }}</div>
     }
     <div class="form__actions">
-      <button type="button" class="btn-a btn-a--ghost" (click)="cancel()">Cancelar</button>
-      <button type="submit" class="btn-a btn-a--primary" [disabled]="saving()">
+      <button type="button" class="tbtn tbtn--ghost" (click)="cancel()">Cancelar</button>
+      <button type="submit" class="tbtn" [disabled]="saving()">
         {{ saving() ? 'Guardando…' : editingUser() ? 'Guardar cambios' : 'Crear usuario' }}
       </button>
     </div>

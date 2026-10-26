@@ -3,7 +3,7 @@
     Estas son las empresas que aparecen en el tablero SST. Crea una empresa
     antes de asignarle usuarios del portal.
   </p>
-  <button type="button" class="btn-a btn-a--primary" (click)="newClient()">+ Nueva empresa</button>
+  <button type="button" class="tbtn" (click)="newClient()">+ Nueva empresa</button>
 </div>
 
 @if (error()) {
@@ -56,8 +56,8 @@
       <div class="form__error" role="alert">{{ formError() }}</div>
     }
     <div class="form__actions">
-      <button type="button" class="btn-a btn-a--ghost" (click)="cancel()">Cancelar</button>
-      <button type="submit" class="btn-a btn-a--primary" [disabled]="saving()">
+      <button type="button" class="tbtn tbtn--ghost" (click)="cancel()">Cancelar</button>
+      <button type="submit" class="tbtn" [disabled]="saving()">
         {{ saving() ? 'Guardando…' : 'Guardar' }}
       </button>
     </div>

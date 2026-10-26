@@ -20,7 +20,7 @@
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 0.9rem;
-  color: var(--navy-800);
+  color: var(--heading);
 }
 .field input,
 .field select,
@@ -46,12 +46,12 @@
 .field input.is-invalid,
 .field select.is-invalid,
 .field textarea.is-invalid {
-  border-color: #e5484d;
+  border-color: var(--err-field);
   box-shadow: 0 0 0 4px rgba(229, 72, 77, 0.12);
 }
 .field__error {
   font-size: 0.82rem;
-  color: #d1373b;
+  color: var(--err-text);
 }
 
 .contact__submit { margin-top: 0.5rem; justify-self: start; }
@@ -66,14 +66,14 @@
   font-weight: 500;
 }
 .alert--success {
-  background: #e7f6ec;
-  color: #1c7d43;
-  border: 1px solid #bce5cb;
+  background: var(--ok-bg);
+  color: var(--ok-fg);
+  border: 1px solid var(--ok-border);
 }
 .alert--error {
-  background: #fdeceb;
-  color: #b3261e;
-  border: 1px solid #f5c6c2;
+  background: var(--err-bg);
+  color: var(--err-fg);
+  border: 1px solid var(--err-border);
 }
 .alert svg { width: 20px; height: 20px; flex: none; }
 

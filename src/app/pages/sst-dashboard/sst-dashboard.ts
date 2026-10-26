@@ -98,10 +98,33 @@ export class SstDashboard {
     return initials || '—';
   });
 
-  print(): void {
-    if (typeof window !== 'undefined') {
-      window.print();
-    }
+  /**
+   * Exporta el informe a PDF generado en el servidor (reemplaza a imprimir la página, que dejaba el
+   * informe desordenado). El cliente nunca envía la empresa: el backend la resuelve desde su token.
+   */
+  readonly exportingPdf = signal(false);
+
+  exportPdf(): void {
+    const d = this.data();
+    if (!d) return;
+
+    this.exportingPdf.set(true);
+    this.sstService.exportPdf(d.year, this.isClient ? null : d.selectedClientCode).subscribe({
+      next: (blob) => {
+        this.saveBlob(blob, this.pdfFileName(d.year, d.selectedClientCode));
+        this.exportingPdf.set(false);
+      },
+      error: () => {
+        this.error.set('No fue posible generar el PDF. Intenta nuevamente.');
+        this.exportingPdf.set(false);
+      },
+    });
+  }
+
+  /** `tablero_sst_<empresa|consolidado>_<año>.pdf`, con el código de empresa saneado. */
+  private pdfFileName(year: number, clientCode: string | null): string {
+    const scope = (clientCode ?? 'consolidado').replace(/[^A-Za-z0-9_-]/g, '');
+    return `tablero_sst_${scope}_${year}.pdf`;
   }
 
   readonly exporting = signal(false);

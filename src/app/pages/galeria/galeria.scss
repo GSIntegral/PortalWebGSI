@@ -35,10 +35,10 @@
   cursor: pointer;
   transition: all 0.2s ease;
 }
-.filter-chip:hover { border-color: var(--primary-400); color: var(--primary-500); }
+.filter-chip:hover { border-color: var(--primary-400); color: var(--link); }
 .filter-chip.is-active {
-  background: var(--navy-900);
-  border-color: var(--navy-900);
+  background: var(--chip-active);
+  border-color: var(--chip-active);
   color: #fff;
 }
 
@@ -57,16 +57,16 @@
   color: var(--ink-500);
 }
 .gallery__state--error {
-  color: #b4232a;
-  border-color: #f3c9cb;
-  background: #fdf3f3;
+  color: var(--err-fg);
+  border-color: var(--err-border);
+  background: var(--err-bg);
 }
 .gallery__retry {
   margin-left: 0.75rem;
   padding: 0.35rem 0.9rem;
   border: 0;
   border-radius: var(--r-sm);
-  background: var(--primary-500);
+  background: var(--btn-primary);
   color: #fff;
   font-weight: 600;
   cursor: pointer;
@@ -81,9 +81,8 @@
   cursor: pointer;
   padding: 0;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: none;
 }
-.tile:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
 
 .tile__img {
   position: absolute;
@@ -175,11 +174,11 @@
 }
 .pager__btn:hover:not(:disabled):not(.is-active) {
   border-color: var(--primary-400);
-  color: var(--primary-500);
+  color: var(--link);
 }
 .pager__btn.is-active {
-  background: var(--navy-900);
-  border-color: var(--navy-900);
+  background: var(--chip-active);
+  border-color: var(--chip-active);
   color: #fff;
 }
 .pager__btn:disabled { opacity: 0.4; cursor: default; }
@@ -225,7 +224,7 @@
 .lightbox__figure {
   max-width: 720px;
   width: 100%;
-  background: #fff;
+  background: var(--surface);
   border-radius: var(--r-lg);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
@@ -250,11 +249,11 @@
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--primary-500);
+  color: var(--link);
 }
 .lightbox__figure figcaption strong {
   font-family: var(--font-display);
   font-size: 1.3rem;
-  color: var(--navy-900);
+  color: var(--heading);
 }
 .lightbox__figure figcaption span:last-child { color: var(--ink-500); }

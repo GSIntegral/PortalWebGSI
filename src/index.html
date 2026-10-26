@@ -17,6 +17,15 @@
       href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
+    <!-- Aplica el modo oscuro guardado ANTES del primer pintado (evita el parpadeo claro→oscuro). -->
+    <script>
+      try {
+        var s = localStorage.getItem('scheme');
+        if (s === 'dark' || (s === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <app-root></app-root>

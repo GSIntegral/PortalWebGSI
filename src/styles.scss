@@ -42,7 +42,81 @@
   --container: 1200px;
   --gutter: clamp(1.25rem, 4vw, 3rem);
   --header-h: 80px;
+
+  /* ---- Tokens semánticos (cambian entre modo claro y oscuro) ----
+     Los colores de marca (--navy-*, --primary-*, --accent-*) NO cambian: se usan como fondo de
+     héroes, botones y degradados con texto blanco. Para TEXTO sobre superficies se usan estos. */
+  --heading: var(--navy-900);          /* títulos y texto fuerte */
+  --link: var(--primary-500);          /* enlaces y texto de acento */
+  --link-strong: var(--primary-600);   /* enlace en hover / pestaña activa */
+  --btn-primary: var(--primary-500);   /* fondo de botón primario (texto blanco) */
+  --btn-primary-hover: var(--primary-600);
+  --chip-active: var(--navy-900);      /* chip/paginador activo (texto blanco) */
+  --header-bg: rgba(255, 255, 255, 0.72);
+  --header-bg-scrolled: rgba(255, 255, 255, 0.92);
+  --row-hover: rgba(26, 92, 158, 0.04);
+  --tint: rgba(26, 92, 158, 0.1);
+  --track: #eef2f7;                    /* pista de barras y rejillas de gráficos */
+  --track-strong: #cbd5e1;
+
+  /* Estados (alertas, avisos y etiquetas) */
+  --ok-bg: #e8f5ee;   --ok-border: #b7e0c6;   --ok-fg: #1e6b3f;
+  --err-bg: #fdf3f3;  --err-border: #f3c9cb;  --err-fg: #b4232a;
+  --err-text: #c0392b;                 /* texto de error sobre superficie */
+  --err-field: #e2574c;                /* borde de campo inválido */
+  --warn-bg: #fff8e8; --warn-border: #f1d9a6; --warn-fg: #8a5a00;
+  --pill-ok-bg: #e5f5ec;   --pill-ok-fg: #17623f;
+  --pill-off-bg: #eceff3;  --pill-off-fg: #5a6779;
+  --pill-warn-bg: #fdf0d5; --pill-warn-fg: #a15c00;
+  --pill-err-bg: #fdecec;  --pill-err-fg: #a12626;
 }
+
+/* ============================================================
+   MODO OSCURO — se activa con la clase `dark` en <html>
+   (SchemeService, mismo comportamiento que Facil ISO: claro / oscuro,
+   elección guardada en localStorage('scheme') y por defecto claro).
+   ============================================================ */
+html.dark {
+  color-scheme: dark;
+
+  --surface: #0f1722;
+  --surface-alt: #0a111a;
+  --surface-2: #172231;
+  --line: #243244;
+
+  --ink-900: #eef3f9;
+  --ink-700: #cfd8e3;
+  --ink-500: #9fb0c3;
+  --ink-400: #7f90a5;
+
+  --heading: #f4f7fb;
+  --link: #6aaeea;
+  --link-strong: #93c5f1;
+  --btn-primary: #2f78c4;
+  --btn-primary-hover: #3b86d4;
+  --chip-active: #2f78c4;
+  --header-bg: rgba(15, 23, 34, 0.78);
+  --header-bg-scrolled: rgba(15, 23, 34, 0.94);
+  --row-hover: rgba(255, 255, 255, 0.05);
+  --tint: rgba(106, 174, 234, 0.14);
+  --track: #1d2a3a;
+  --track-strong: #3a4a5f;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4), 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 24px 60px rgba(0, 0, 0, 0.55);
+
+  --ok-bg: #12301f;   --ok-border: #1f5a39;   --ok-fg: #7be0a6;
+  --err-bg: #331518;  --err-border: #6b2a30;  --err-fg: #ff9a9f;
+  --err-text: #ff8a8f;
+  --err-field: #ff6b70;
+  --warn-bg: #33270d; --warn-border: #6b5217; --warn-fg: #f2c46b;
+  --pill-ok-bg: #12301f;   --pill-ok-fg: #7be0a6;
+  --pill-off-bg: #243244;  --pill-off-fg: #b4c1d1;
+  --pill-warn-bg: #3a2d0f; --pill-warn-fg: #f2c46b;
+  --pill-err-bg: #3a171b;  --pill-err-fg: #ff9a9f;
+}
+
 
 * {
   box-sizing: border-box;
@@ -66,7 +140,7 @@ body {
 
 h1, h2, h3, h4, h5 {
   font-family: var(--font-display);
-  color: var(--navy-900);
+  color: var(--heading);
   line-height: 1.15;
   margin: 0 0 0.5em;
   letter-spacing: -0.02em;
@@ -80,11 +154,11 @@ h3 { font-size: clamp(1.25rem, 2vw, 1.5rem); }
 p { margin: 0 0 1rem; }
 
 a {
-  color: var(--primary-500);
+  color: var(--link);
   text-decoration: none;
   transition: color 0.2s ease;
 }
-a:hover { color: var(--primary-600); }
+a:hover { color: var(--link-strong); }
 
 img { max-width: 100%; display: block; }
 
@@ -120,7 +194,7 @@ ul { margin: 0; padding: 0; list-style: none; }
   font-size: 0.78rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--primary-500);
+  color: var(--link);
   margin-bottom: 1rem;
 }
 .eyebrow::before {
@@ -139,7 +213,7 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* ---------- Botones ---------- */
 .btn {
-  --btn-bg: var(--primary-500);
+  --btn-bg: var(--btn-primary);
   --btn-fg: #fff;
   display: inline-flex;
   align-items: center;
@@ -154,21 +228,21 @@ ul { margin: 0; padding: 0; list-style: none; }
   border: 1.5px solid transparent;
   background: var(--btn-bg);
   color: var(--btn-fg);
-  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+  transition: background 0.2s ease, color 0.2s ease, filter 0.2s ease;
   white-space: nowrap;
 }
-.btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-primary); color: #fff; }
-.btn:active { transform: translateY(0); }
+/* Feedback al pasar el mouse SIN movimiento: solo un leve oscurecimiento. */
+.btn:hover { filter: brightness(0.94); color: #fff; }
 
 .btn--accent { --btn-bg: var(--accent-500); color: var(--navy-900); }
-.btn--accent:hover { color: var(--navy-900); box-shadow: 0 14px 30px rgba(245, 166, 35, 0.35); }
+.btn--accent:hover { color: var(--navy-900); }
 
 .btn--ghost {
   background: transparent;
-  color: var(--navy-900);
+  color: var(--heading);
   border-color: var(--line);
 }
-.btn--ghost:hover { background: var(--surface-2); color: var(--navy-900); box-shadow: none; }
+.btn--ghost:hover { background: var(--surface-2); color: var(--heading); filter: none; }
 
 .btn--light {
   background: rgba(255, 255, 255, 0.12);
@@ -187,12 +261,6 @@ ul { margin: 0; padding: 0; list-style: none; }
   border-radius: var(--r-md);
   padding: 2rem;
   box-shadow: var(--shadow-sm);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
-}
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-lg);
-  border-color: transparent;
 }
 
 /* ---------- Animación aparición ---------- */
@@ -249,9 +317,81 @@ ul { margin: 0; padding: 0; list-style: none; }
 /* ---------- Selección ---------- */
 ::selection { background: var(--accent-500); color: var(--navy-900); }
 
-/* ---------- Impresión: ocultar layout del sitio para PDF limpio ---------- */
-@media print {
-  app-header,
-  app-footer { display: none !important; }
-  main#contenido { padding: 0 !important; }
+/* ---------- Barra de acciones y botones de herramientas ----------
+   Sistema ÚNICO para tablero, editor y administración: todos los controles
+   miden 42 px de alto, llenan su celda de la rejilla y se reacomodan solos
+   al achicar la pantalla (sin alturas ni anchos distintos). Sin movimiento al hover. */
+.tbar {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 0.75rem;
+  align-items: end;
+  width: 100%;
 }
+.tbar--wide-first > :first-child { grid-column: span 2; }
+@media (max-width: 520px) {
+  .tbar { grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+  .tbar--wide-first > :first-child { grid-column: 1 / -1; }
+}
+@media (max-width: 360px) {
+  .tbar { grid-template-columns: 1fr; }
+}
+
+.tbtn {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 100%;
+  height: 42px;
+  padding: 0 0.9rem;
+  border: 1px solid var(--btn-primary);
+  border-radius: var(--r-sm);
+  background: var(--btn-primary);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.tbtn:hover { background: var(--btn-primary-hover); border-color: var(--btn-primary-hover); color: #fff; }
+.tbtn:disabled, .tbtn[aria-disabled='true'] { opacity: 0.6; cursor: default; }
+
+.tbtn--ghost { background: var(--surface); border-color: var(--line); color: var(--link-strong); }
+.tbtn--ghost:hover { background: var(--surface-2); border-color: var(--primary-400); color: var(--link-strong); }
+
+/* Select con etiqueta, de la misma altura que los botones. */
+.tfield {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--ink-500);
+}
+.tfield select,
+.tfield input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 42px;
+  padding: 0 0.7rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--surface);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink-900);
+}
+.tfield select { cursor: pointer; text-overflow: ellipsis; }

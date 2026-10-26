@@ -3,11 +3,13 @@ import { inject, Injectable } from '@angular/core';
 import { map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { fixMojibakeDeep } from '../../core/mojibake';
+import { UserService } from '../../core/user/user.service';
 import { ApiResponse, SstDashboard, SstImportResult } from './sst-dashboard.types';
 
 @Injectable({ providedIn: 'root' })
 export class SstDashboardService {
   private _httpClient = inject(HttpClient);
+  private _userService = inject(UserService);
 
   /**
    * Obtiene el tablero SST consolidado del tenant actual.
@@ -46,6 +48,33 @@ export class SstDashboardService {
         params,
       })
       .pipe(map((response) => fixMojibakeDeep(response.data)));
+  }
+
+  /**
+   * Descarga el informe del tablero en PDF (generado en el servidor, HU_079).
+   * Cliente del portal: solo su empresa (no se envía código). Equipo: consolidado o la empresa elegida.
+   */
+  exportPdf(year: number, clientCode: string | null): Observable<Blob> {
+    if (this.isClientSession()) {
+      const params = new HttpParams().set('year', String(year));
+      return this._httpClient.get(`${environment.apiUrl}/api/PortalDashboard/ExportPdf`, {
+        params,
+        responseType: 'blob',
+      });
+    }
+
+    let params = new HttpParams().set('year', String(year));
+    if (clientCode) {
+      params = params.set('clientCode', clientCode);
+    }
+    return this._httpClient.get(`${environment.apiUrl}/api/SstEditor/ExportPdf`, {
+      params,
+      responseType: 'blob',
+    });
+  }
+
+  private isClientSession(): boolean {
+    return this._userService.currentUser?.kind === 'client';
   }
 
   /** Descarga el libro Excel con los datos SST del año. */

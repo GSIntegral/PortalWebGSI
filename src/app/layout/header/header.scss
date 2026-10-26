@@ -2,13 +2,13 @@
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.72);
+  background: var(--header-bg);
   backdrop-filter: saturate(180%) blur(14px);
   border-bottom: 1px solid transparent;
   transition: background 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
 }
 .site-header.is-scrolled {
-  background: rgba(255, 255, 255, 0.92);
+  background: var(--header-bg-scrolled);
   box-shadow: var(--shadow-sm);
   border-bottom-color: var(--line);
 }
@@ -19,36 +19,42 @@
   justify-content: space-between;
   gap: 1.5rem;
   height: var(--header-h);
+  /* La barra con sesión (5 enlaces + 3 acciones) es más ancha que el contenedor de contenido. */
+  max-width: 1560px;
+  padding-inline: clamp(1rem, 2vw, 2rem);
 }
 
 .nav {
   display: flex;
   align-items: center;
-  gap: 2rem;
+  gap: 1.25rem;
 }
 
 .nav__list {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.1rem;
 }
 
 .nav__link {
   position: relative;
-  display: inline-block;
-  padding: 0.55rem 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  height: 42px;
+  padding: 0 0.75rem;
   border-radius: var(--r-sm);
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.94rem;
+  font-size: 0.92rem;
   color: var(--ink-700);
+  white-space: nowrap; /* los enlaces nunca se parten en dos líneas */
   transition: color 0.2s ease, background 0.2s ease;
 }
 .nav__link::after {
   content: '';
   position: absolute;
-  left: 0.85rem;
-  right: 0.85rem;
+  left: 0.75rem;
+  right: 0.75rem;
   bottom: 0.3rem;
   height: 2px;
   border-radius: 2px;
@@ -57,10 +63,10 @@
   transform-origin: left;
   transition: transform 0.25s ease;
 }
-.nav__link:hover { color: var(--navy-900); }
+.nav__link:hover { color: var(--heading); }
 .nav__link:hover::after { transform: scaleX(1); }
 .nav__link.is-active {
-  color: var(--primary-600);
+  color: var(--link-strong);
   background: var(--surface-2);
 }
 .nav__link.is-active::after { transform: scaleX(1); }
@@ -68,20 +74,29 @@
 .nav__actions {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.5rem;
+}
+
+/* Todos los controles de acción de la cabecera (iniciar/cerrar sesión y CTA) miden lo mismo. */
+.nav__login,
+.nav__cta {
+  box-sizing: border-box;
+  height: 42px;
+  padding: 0 1.1rem;
+  font-size: 0.92rem;
+  line-height: 1;
 }
 
 .nav__login {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.45rem;
-  padding: 0.6rem 1.1rem;
   border-radius: var(--r-full);
   border: 1.5px solid var(--line);
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 0.94rem;
-  color: var(--navy-900);
+  color: var(--heading);
   background: transparent;
   cursor: pointer;
   transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
@@ -89,13 +104,49 @@
 }
 .nav__login svg { width: 18px; height: 18px; }
 .nav__login:hover {
-  color: var(--primary-600);
+  color: var(--link-strong);
   background: var(--surface-2);
   border-color: var(--primary-400);
 }
 .nav__login::after { display: none; }
 
 .nav__cta { margin-left: 0; }
+
+/* Botón de modo claro / oscuro: círculo de 42 px, igual altura que el resto de controles. */
+.nav__scheme {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  flex: none;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 1.5px solid var(--line);
+  border-radius: var(--r-full);
+  background: transparent;
+  color: var(--heading);
+  font-family: var(--font-display);
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.nav__scheme:hover {
+  color: var(--link-strong);
+  background: var(--surface-2);
+  border-color: var(--primary-400);
+}
+.nav__scheme svg { width: 18px; height: 18px; }
+.nav__scheme-label { display: none; }
+
+/* En modo oscuro se muestra el sol (para volver a claro); en claro, la luna. */
+.nav__scheme-sun,
+.nav__scheme-to-light { display: none; }
+:host-context(html.dark) .nav__scheme-sun { display: block; }
+:host-context(html.dark) .nav__scheme-moon { display: none; }
+:host-context(html.dark) .nav__scheme-to-light { display: inline; }
+:host-context(html.dark) .nav__scheme-to-dark { display: none; }
 
 /* Botón hamburguesa */
 .nav-toggle {
@@ -108,7 +159,7 @@
   padding: 0;
   border: 1px solid var(--line);
   border-radius: var(--r-sm);
-  background: #fff;
+  background: var(--surface);
   cursor: pointer;
   z-index: 120;
 }
@@ -117,7 +168,7 @@
   width: 20px;
   height: 2px;
   margin-inline: auto;
-  background: var(--navy-900);
+  background: var(--heading);
   border-radius: 2px;
   transition: transform 0.3s ease, opacity 0.2s ease;
 }
@@ -133,7 +184,24 @@
 }
 
 /* ---------- Responsive ---------- */
-@media (max-width: 960px) {
+/* Laptops (1 361–1 499 px): barra compacta para que quepa también con sesión iniciada. */
+@media (min-width: 1361px) and (max-width: 1499px) {
+  .nav { gap: 1rem; }
+  .nav__link {
+    padding: 0 0.5rem;
+    font-size: 0.86rem;
+  }
+  .nav__link::after { left: 0.5rem; right: 0.5rem; }
+  .nav__actions { gap: 0.35rem; }
+  .nav__login,
+  .nav__cta {
+    padding: 0 0.9rem;
+    font-size: 0.86rem;
+  }
+}
+
+/* Por debajo de 1 361 px la barra no cabe con sesión iniciada: se usa el menú lateral. */
+@media (max-width: 1360px) {
   .nav-toggle { display: flex; }
 
   .nav {
@@ -147,7 +215,7 @@
     justify-content: flex-start;
     gap: 0.25rem;
     padding: calc(var(--header-h) + 1rem) 1.5rem 2rem;
-    background: #fff;
+    background: var(--surface);
     box-shadow: var(--shadow-lg);
     transform: translateX(100%);
     transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
@@ -161,7 +229,8 @@
     gap: 0.25rem;
   }
   .nav__link {
-    display: block;
+    display: flex;
+    height: auto;
     padding: 0.9rem 1rem;
     font-size: 1.05rem;
   }
@@ -173,10 +242,19 @@
     gap: 0.6rem;
     margin-top: 1rem;
   }
-  .nav__login {
-    justify-content: center;
-    padding: 0.85rem 1rem;
-    font-size: 1.02rem;
+  .nav__login,
+  .nav__cta {
+    width: 100%;
+    height: 46px;
+    font-size: 1rem;
   }
-  .nav__cta { margin: 0; width: 100%; }
+  .nav__cta { margin: 0; }
+
+  /* En el menú lateral el botón ocupa todo el ancho y muestra el texto. */
+  .nav__scheme {
+    width: 100%;
+    height: 46px;
+    font-size: 1rem;
+  }
+  .nav__scheme-label { display: inline; }
 }

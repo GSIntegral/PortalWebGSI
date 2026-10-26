@@ -5,9 +5,9 @@
         <p class="editor__eyebrow">Editor de datos SST</p>
         <h1 class="editor__title">Editor de datos</h1>
       </div>
-      <div class="editor__actions">
-        <a routerLink="/sst-dashboard" class="editor__btn editor__btn--ghost">← Volver al tablero</a>
-        <a routerLink="/portal-admin" class="editor__btn editor__btn--ghost">Empresas y usuarios</a>
+      <div class="tbar editor__actions">
+        <a routerLink="/sst-dashboard" class="tbtn tbtn--ghost">← Volver al tablero</a>
+        <a routerLink="/portal-admin" class="tbtn tbtn--ghost">Empresas y usuarios</a>
       </div>
     </header>
 
@@ -97,8 +97,8 @@
             <div class="form__error" role="alert">{{ indFormError() }}</div>
           }
           <div class="form__actions">
-            <button type="button" class="editor__btn editor__btn--ghost" (click)="cancelIndicator()">Cancelar</button>
-            <button type="submit" class="editor__btn editor__btn--primary" [disabled]="indSaving()">
+            <button type="button" class="tbtn tbtn--ghost" (click)="cancelIndicator()">Cancelar</button>
+            <button type="submit" class="tbtn" [disabled]="indSaving()">
               {{ indSaving() ? 'Guardando…' : 'Guardar' }}
             </button>
           </div>
@@ -216,8 +216,8 @@
             <div class="form__error" role="alert">{{ demFormError() }}</div>
           }
           <div class="form__actions">
-            <button type="button" class="editor__btn editor__btn--ghost" (click)="cancelDemography()">Cancelar</button>
-            <button type="submit" class="editor__btn editor__btn--primary" [disabled]="demSaving()">
+            <button type="button" class="tbtn tbtn--ghost" (click)="cancelDemography()">Cancelar</button>
+            <button type="submit" class="tbtn" [disabled]="demSaving()">
               {{ demSaving() ? 'Guardando…' : 'Guardar' }}
             </button>
           </div>
@@ -314,8 +314,8 @@
             <div class="form__error" role="alert">{{ capFormError() }}</div>
           }
           <div class="form__actions">
-            <button type="button" class="editor__btn editor__btn--ghost" (click)="cancelTraining()">Cancelar</button>
-            <button type="button" class="editor__btn editor__btn--primary" [disabled]="capSaving()" (click)="saveTrainings()">
+            <button type="button" class="tbtn tbtn--ghost" (click)="cancelTraining()">Cancelar</button>
+            <button type="button" class="tbtn" [disabled]="capSaving()" (click)="saveTrainings()">
               {{ capSaving() ? 'Guardando…' : 'Guardar' }}
             </button>
           </div>
