@@ -24,8 +24,17 @@
             class="nav__link"
             routerLinkActive="is-active"
             (click)="closeMenu()"
-            >Tablero SST</a
+            >{{ user.kind === 'client' ? 'Mi tablero' : 'Tablero SST' }}</a
           >
+          @if (user.kind !== 'client') {
+            <a
+              routerLink="/portal-admin"
+              class="nav__link"
+              routerLinkActive="is-active"
+              (click)="closeMenu()"
+              >Administración</a
+            >
+          }
           <button type="button" class="nav__login" (click)="logout()">
             <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
               <path

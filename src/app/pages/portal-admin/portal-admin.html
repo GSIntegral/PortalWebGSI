@@ -1,0 +1,47 @@
+<section class="admin">
+  <div class="container">
+    <header class="admin__head">
+      <div>
+        <p class="admin__eyebrow">Administración del portal</p>
+        <h1 class="admin__title">Empresas y usuarios</h1>
+        <p class="admin__lead">
+          Crea las empresas que verás en el tablero y los usuarios que podrán
+          consultar únicamente la información de su empresa.
+        </p>
+      </div>
+      <div class="admin__actions">
+        <a routerLink="/sst-dashboard" class="admin__btn admin__btn--ghost">← Volver al tablero</a>
+        <a routerLink="/sst-dashboard/editor" class="admin__btn admin__btn--ghost">Editor de datos SST</a>
+      </div>
+    </header>
+
+    <div class="tabs" role="tablist">
+      <button
+        type="button"
+        role="tab"
+        class="tabs__btn"
+        [class.is-active]="activeTab() === 'empresas'"
+        [attr.aria-selected]="activeTab() === 'empresas'"
+        (click)="setTab('empresas')"
+      >
+        Empresas
+      </button>
+      <button
+        type="button"
+        role="tab"
+        class="tabs__btn"
+        [class.is-active]="activeTab() === 'usuarios'"
+        [attr.aria-selected]="activeTab() === 'usuarios'"
+        (click)="setTab('usuarios')"
+      >
+        Usuarios del portal
+      </button>
+    </div>
+
+    @if (activeTab() === 'empresas') {
+      <app-portal-companies />
+    } @else {
+      <app-portal-users />
+    }
+  </div>
+</section>

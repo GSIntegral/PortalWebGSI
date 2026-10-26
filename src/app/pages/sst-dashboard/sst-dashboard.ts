@@ -1,6 +1,7 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { UserService } from '../../core/user/user.service';
 import { SstDashboardService } from './sst-dashboard.service';
 import { SstDashboard as SstDashboardData, SstImportResult, SstMonthlyTraining } from './sst-dashboard.types';
 
@@ -36,6 +37,13 @@ interface HBar {
 export class SstDashboard {
   private sstService = inject(SstDashboardService);
 
+  /**
+   * True para un usuario del portal (cliente): ve únicamente la empresa a la que está ligado, sin
+   * selector de empresa ni acciones de edición/importación/exportación (HU_079). Se fija al crear
+   * el componente porque la sesión ya está resuelta por el guard de la ruta.
+   */
+  readonly isClient = inject(UserService).currentUser?.kind === 'client';
+
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly data = signal<SstDashboardData | null>(null);
@@ -50,7 +58,11 @@ export class SstDashboard {
   load(year: number | null, clientCode: string | null): void {
     this.loading.set(true);
     this.error.set(null);
-    this.sstService.getDashboard(year, clientCode).subscribe({
+    // El cliente nunca envía el código de empresa: el backend lo resuelve desde su token.
+    const request$ = this.isClient
+      ? this.sstService.getClientDashboard(year)
+      : this.sstService.getDashboard(year, clientCode);
+    request$.subscribe({
       next: (res) => {
         this.data.set(res);
         this.loading.set(false);
@@ -164,7 +176,9 @@ export class SstDashboard {
       case 401:
         return 'Tu sesión expiró. Inicia sesión nuevamente.';
       case 403:
-        return 'No tienes permiso para ver el tablero SST o aún no has seleccionado una empresa.';
+        return this.isClient
+          ? 'Tu cuenta o tu empresa no están activas. Comunícate con GS Integral.'
+          : 'No tienes permiso para ver el tablero SST o aún no has seleccionado una empresa.';
       default:
         return 'No fue posible cargar el tablero SST. Intenta nuevamente.';
     }

@@ -3,6 +3,7 @@ import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
 import {
     catchError,
+    forkJoin,
     from,
     map,
     Observable,
@@ -12,8 +13,50 @@ import {
     timeout,
 } from 'rxjs';
 import { environment } from '../../../environments/environment';
+import { SessionKind } from '../user/user.types';
 import { UserService } from '../user/user.service';
 import { AuthUtils } from './auth.utils';
+
+/** Respuesta de `POST /api/PortalAuth/Login` (dentro del envelope `data`). */
+interface PortalLoginData {
+    token: string;
+    requiresPasswordChange: boolean;
+    user: {
+        userId: string;
+        fullName: string;
+        email: string;
+        clientId: string;
+        clientCode: string;
+        clientName: string;
+    };
+}
+
+interface ApiEnvelope<T> {
+    data: T;
+    success: boolean;
+    message: string;
+}
+
+/** Lee el primer claim presente, soportando tanto los nombres cortos como las URIs WS-Federation. */
+function readClaim(payload: Record<string, unknown>, ...keys: string[]): string | undefined {
+    for (const key of keys) {
+        const value = payload[key];
+        if (value !== undefined && value !== null && value !== '') {
+            return String(value);
+        }
+    }
+    return undefined;
+}
+
+const CLAIM_EMAIL = [
+    'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress',
+    'email',
+];
+const CLAIM_NAME = [
+    'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name',
+    'unique_name',
+    'name',
+];
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -41,6 +84,24 @@ export class AuthService {
             return '';
         }
         return localStorage.getItem('accessToken') ?? '';
+    }
+
+    /**
+     * Tipo de sesión según el token guardado: los tokens del portal (clientes) llevan el claim
+     * `portal_user`. Es solo para decidir qué pantallas mostrar; la autorización real la impone
+     * el backend (un token del portal no valida en la plataforma ni al revés).
+     */
+    get sessionKind(): SessionKind | null {
+        const token = this.accessToken;
+        if (!token) {
+            return null;
+        }
+        const payload = AuthUtils.decodeToken(token);
+        if (!payload) {
+            return null;
+        }
+        const flag = payload['portal_user'];
+        return flag === true || flag === 'true' ? 'client' : 'staff';
     }
 
     // -----------------------------------------------------------------------------------------------------
@@ -72,7 +133,89 @@ export class AuthService {
     }
 
     /**
-     * Sign in — HU_001
+     * Inicio de sesión del CLIENTE del portal (HU_079): login independiente, otra tabla y otro
+     * token que el de la plataforma Facil ISO (`POST /api/PortalAuth/Login`).
+     *
+     * Envía SHA-256 de la contraseña (igual que el login de la plataforma) con un timeout de 10 s.
+     */
+    clientSignIn(credentials: {
+        email: string;
+        password: string;
+    }): Observable<{ requiresPasswordChange: boolean }> {
+        if (this._authenticated) {
+            return throwError(() => 'User is already logged in.');
+        }
+
+        return from(this._sha256Hex(credentials.password)).pipe(
+            switchMap((hash) =>
+                this._httpClient
+                    .post<ApiEnvelope<PortalLoginData>>(
+                        `${environment.apiUrl}/api/PortalAuth/Login`,
+                        { email: credentials.email.trim(), password: hash }
+                    )
+                    .pipe(timeout(10000))
+            ),
+            map((response) => {
+                const data = response.data;
+                this.accessToken = data.token;
+                this._authenticated = true;
+
+                this._userService.user = {
+                    id: data.user.userId,
+                    name: data.user.fullName,
+                    email: data.user.email,
+                    role: 'PortalClient',
+                    roles: ['PortalClient'],
+                    isFirstLogin: data.requiresPasswordChange,
+                    requiresPasswordChange: data.requiresPasswordChange,
+                    companyName: data.user.clientName,
+                    kind: 'client',
+                    clientId: data.user.clientId,
+                    clientCode: data.user.clientCode,
+                    clientName: data.user.clientName,
+                    permissions: [],
+                };
+
+                // El logo de la empresa llega con el tablero (no está en el JWT ni en el login).
+                if (this._isBrowser) {
+                    localStorage.removeItem('companyLogo');
+                }
+
+                return { requiresPasswordChange: data.requiresPasswordChange };
+            })
+        );
+    }
+
+    /**
+     * Cambia la contraseña temporal del primer ingreso del cliente
+     * (`POST /api/PortalAuth/ChangeFirstLoginPassword`) y rehidrata la sesión con el token nuevo,
+     * que ya no lleva la marca de primer ingreso.
+     */
+    changeFirstLoginPassword(
+        newPassword: string,
+        confirmPassword: string
+    ): Observable<void> {
+        return forkJoin([
+            from(this._sha256Hex(newPassword)),
+            from(this._sha256Hex(confirmPassword)),
+        ]).pipe(
+            switchMap(([newHash, confirmHash]) =>
+                this._httpClient.post<ApiEnvelope<{ token: string }>>(
+                    `${environment.apiUrl}/api/PortalAuth/ChangeFirstLoginPassword`,
+                    { newPassword: newHash, confirmPassword: confirmHash }
+                )
+            ),
+            switchMap((response) => {
+                this.accessToken = response.data.token;
+                return this.signInUsingToken();
+            }),
+            map(() => undefined)
+        );
+    }
+
+    /**
+     * Inicio de sesión del EQUIPO de GS Integral con las credenciales de la plataforma Facil ISO
+     * (HU_001). Es el acceso para administrar el portal (empresas, usuarios, editor de datos).
      *
      * Hashes the password with SHA-256 (Web Crypto API) before sending,
      * then POSTs to /api/Auth/Login. Decodes the returned JWT to build
@@ -80,7 +223,7 @@ export class AuthService {
      *
      * @param credentials
      */
-    signIn(credentials: { email: string; password: string }): Observable<any> {
+    staffSignIn(credentials: { email: string; password: string }): Observable<any> {
         if (this._authenticated) {
             return throwError(() => 'User is already logged in.');
         }
@@ -148,6 +291,7 @@ export class AuthService {
                     companyName: apiUser.companyName ?? undefined,
                     companyLogo: apiUser.companyLogo ?? null,
                     permissions,
+                    kind: 'staff',
                 };
 
                 // Persistir logo entre recargas (no está en el JWT)
@@ -201,6 +345,37 @@ export class AuthService {
      */
     signInUsingToken(): Observable<any> {
         const payload = AuthUtils.decodeToken(this.accessToken);
+
+        // Token de un usuario del portal (cliente): se rehidrata desde sus claims propios.
+        if (
+            payload &&
+            (payload['portal_user'] === true || payload['portal_user'] === 'true')
+        ) {
+            const firstLogin =
+                payload['first_login'] === true ||
+                payload['first_login'] === 'true';
+            const clientName =
+                readClaim(payload, 'CompanyName') ?? undefined;
+
+            this._userService.user = {
+                id: readClaim(payload, 'userId', 'sub') ?? '',
+                name: readClaim(payload, ...CLAIM_NAME) ?? '',
+                email: readClaim(payload, ...CLAIM_EMAIL) ?? '',
+                role: 'PortalClient',
+                roles: ['PortalClient'],
+                isFirstLogin: firstLogin,
+                requiresPasswordChange: firstLogin,
+                companyName: clientName,
+                kind: 'client',
+                clientId: readClaim(payload, 'ClientId'),
+                clientCode: readClaim(payload, 'ClientCode'),
+                clientName,
+                permissions: [],
+            };
+            this._authenticated = true;
+            return of(true);
+        }
+
         if (payload) {
             // Soporta claims simples (spec HU_002) y WS-Federation namespaced (backend actual)
             const role =
@@ -257,6 +432,7 @@ export class AuthService {
                     ? localStorage.getItem('companyLogo')
                     : null,
                 permissions,
+                kind: 'staff',
             };
             this._authenticated = true;
             return of(true);

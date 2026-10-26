@@ -2,9 +2,13 @@ import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../core/auth/auth.service';
-import { UserService } from '../../core/user/user.service';
 import { Logo } from '../../shared/logo/logo';
 
+/**
+ * Inicio de sesión de los CLIENTES del portal (HU_079). Usa un login independiente del de la
+ * plataforma Facil ISO: otra tabla de usuarios y otro token, ligado a una única empresa.
+ * El equipo de GS Integral entra por `/login/equipo`.
+ */
 @Component({
   selector: 'app-login',
   imports: [ReactiveFormsModule, RouterLink, Logo],
@@ -14,7 +18,6 @@ import { Logo } from '../../shared/logo/logo';
 export class Login {
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
-  private userService = inject(UserService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
 
@@ -59,63 +62,37 @@ export class Login {
     this.loading.set(true);
     this.form.disable();
 
-    const credentials = {
-      email: this.form.getRawValue().email ?? '',
-      password: this.form.getRawValue().password ?? '',
-    };
+    const raw = this.form.getRawValue();
 
-    this.authService.signIn(credentials).subscribe({
-      next: (result: { requiresPasswordChange: boolean; isSuperAdmin: boolean }) => {
-        // El superadmin recibe un token sin empresa: hay que seleccionar una
-        // (HU_002) para que las peticiones protegidas no devuelvan 401.
-        const user = this.userService.currentUser;
-        if (result.isSuperAdmin && !user?.companyId) {
-          this.selectCompanyThenRedirect();
-        } else {
-          this.finishLogin();
-        }
-      },
-      error: (error) => this.failLogin(error),
-    });
-  }
-
-  /**
-   * Selecciona automáticamente la empresa del superadmin. Con una sola empresa
-   * activa (caso actual) la elige directo; si hubiera varias, toma la primera.
-   */
-  private selectCompanyThenRedirect(): void {
-    this.authService.getActiveCompanies().subscribe({
-      next: (companies) => {
-        if (companies.length === 0) {
-          this.finishLogin();
-          return;
-        }
-        this.authService.selectCompany(companies[0].companyId).subscribe({
-          next: () => this.finishLogin(),
-          error: (error) => this.failLogin(error),
-        });
-      },
-      error: (error) => this.failLogin(error),
-    });
-  }
-
-  private finishLogin(): void {
-    this.loading.set(false);
-    // Redirige a la URL solicitada antes de iniciar sesión, si existe;
-    // por defecto, va directo al tablero SST.
-    const redirectURL = this.route.snapshot.queryParamMap.get('redirectURL') ?? '/sst-dashboard';
-    this.router.navigateByUrl(redirectURL, { replaceUrl: true });
-  }
-
-  private failLogin(error: unknown): void {
-    this.loading.set(false);
-    this.form.enable();
-    this.errorMessage.set(this.buildErrorMessage(error));
+    this.authService
+      .clientSignIn({ email: raw.email ?? '', password: raw.password ?? '' })
+      .subscribe({
+        next: ({ requiresPasswordChange }) => {
+          this.loading.set(false);
+          if (requiresPasswordChange) {
+            this.router.navigateByUrl('/cambiar-contrasena', { replaceUrl: true });
+            return;
+          }
+          // Redirige a la URL solicitada antes de iniciar sesión, si existe;
+          // por defecto, va directo al tablero de su empresa.
+          const redirectURL =
+            this.route.snapshot.queryParamMap.get('redirectURL') ?? '/sst-dashboard';
+          this.router.navigateByUrl(redirectURL, { replaceUrl: true });
+        },
+        error: (error) => {
+          this.loading.set(false);
+          this.form.enable();
+          this.errorMessage.set(this.buildErrorMessage(error));
+        },
+      });
   }
 
   private buildErrorMessage(error: any): string {
     if (error?.name === 'TimeoutError') {
       return 'El servidor tardó demasiado en responder. Inténtalo de nuevo.';
+    }
+    if (error?.status === 0) {
+      return 'No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.';
     }
     return (
       error?.error?.message ??

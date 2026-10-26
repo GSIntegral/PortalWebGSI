@@ -16,15 +16,18 @@
 
       @if (data(); as d) {
         <div class="sst__controls no-print">
-          <label class="sst__field">
-            <span>Empresa</span>
-            <select (change)="onClientChange($event)">
-              <option value="" [selected]="!d.selectedClientCode">★ Todas las empresas (consolidado)</option>
-              @for (c of d.availableClients; track c.code) {
-                <option [value]="c.code" [selected]="c.code === d.selectedClientCode">{{ c.name }}</option>
-              }
-            </select>
-          </label>
+          <!-- Un usuario del portal ve solo su empresa: sin selector ni consolidado (HU_079). -->
+          @if (!isClient) {
+            <label class="sst__field">
+              <span>Empresa</span>
+              <select (change)="onClientChange($event)">
+                <option value="" [selected]="!d.selectedClientCode">★ Todas las empresas (consolidado)</option>
+                @for (c of d.availableClients; track c.code) {
+                  <option [value]="c.code" [selected]="c.code === d.selectedClientCode">{{ c.name }}</option>
+                }
+              </select>
+            </label>
+          }
           <label class="sst__field">
             <span>Año</span>
             <select (change)="onYearChange($event)">
@@ -33,15 +36,19 @@
               }
             </select>
           </label>
-          <a routerLink="/sst-dashboard/editor" class="sst__print sst__print--ghost">✎ Editar datos</a>
-          <button type="button" class="sst__print sst__print--ghost" [disabled]="exporting()" (click)="exportExcel()">
-            {{ exporting() ? 'Exportando…' : '⬇ Exportar Excel' }}
-          </button>
-          <button type="button" class="sst__print sst__print--ghost" (click)="downloadTemplate()">📄 Plantilla</button>
-          <label class="sst__print sst__print--ghost sst__import">
-            {{ importing() ? 'Importando…' : '⬆ Importar' }}
-            <input type="file" accept=".xlsx" hidden [disabled]="importing()" (change)="onImportFile($event)" />
-          </label>
+          <!-- Edición, importación y exportación operan sobre todo el tenant: solo el equipo (HU_079). -->
+          @if (!isClient) {
+            <a routerLink="/portal-admin" class="sst__print sst__print--ghost">⚙ Empresas y usuarios</a>
+            <a routerLink="/sst-dashboard/editor" class="sst__print sst__print--ghost">✎ Editar datos</a>
+            <button type="button" class="sst__print sst__print--ghost" [disabled]="exporting()" (click)="exportExcel()">
+              {{ exporting() ? 'Exportando…' : '⬇ Exportar Excel' }}
+            </button>
+            <button type="button" class="sst__print sst__print--ghost" (click)="downloadTemplate()">📄 Plantilla</button>
+            <label class="sst__print sst__print--ghost sst__import">
+              {{ importing() ? 'Importando…' : '⬆ Importar' }}
+              <input type="file" accept=".xlsx" hidden [disabled]="importing()" (change)="onImportFile($event)" />
+            </label>
+          }
           <button type="button" class="sst__print" (click)="print()">🖨 Imprimir / PDF</button>
         </div>
       }

@@ -3,10 +3,11 @@
     <!-- Panel izquierdo: formulario -->
     <div class="login__form-panel">
       <div class="login__form-inner">
-        <span class="eyebrow">Portal GS Integral</span>
+        <span class="eyebrow">Portal de clientes</span>
         <h1 class="login__title">Iniciar sesión</h1>
         <p class="login__subtitle">
-          Ingresa tus credenciales para acceder a la plataforma.
+          Ingresa con el usuario que te asignó GS Integral para consultar el
+          tablero de tu empresa.
         </p>
 
         @if (errorMessage()) {
@@ -81,7 +82,7 @@
 
           <div class="login__row">
             <a routerLink="/contactanos" class="login__forgot"
-              >¿Olvidaste tu contraseña?</a
+              >¿Olvidaste tu contraseña? Solicítala a GS Integral</a
             >
           </div>
 
@@ -89,6 +90,11 @@
             {{ loading() ? 'Ingresando…' : 'Ingresar' }}
           </button>
         </form>
+
+        <p class="login__alt">
+          ¿Eres del equipo de GS Integral?
+          <a routerLink="/login/equipo">Acceso interno</a>
+        </p>
       </div>
     </div>
 

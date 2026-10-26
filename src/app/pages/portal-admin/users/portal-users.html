@@ -1,0 +1,157 @@
+<div class="panel__head">
+  <div class="panel__tools">
+    <label class="field">
+      <span>Filtrar por empresa</span>
+      <select [value]="filterClientId()" (change)="onFilterChange($event)">
+        <option value="">Todas las empresas</option>
+        @for (c of clients(); track c.id) {
+          <option [value]="c.id">{{ c.name }}</option>
+        }
+      </select>
+    </label>
+  </div>
+  <button
+    type="button"
+    class="btn-a btn-a--primary"
+    [disabled]="clients().length === 0"
+    (click)="newUser()"
+  >
+    + Nuevo usuario
+  </button>
+</div>
+
+@if (clients().length === 0 && !loading()) {
+  <p class="panel__hint">
+    Aún no hay empresas. Crea una en la pestaña «Empresas» para poder asignarle usuarios.
+  </p>
+}
+
+@if (notice(); as n) {
+  <div class="notice" [class.notice--warn]="n.kind === 'warn'" role="status">
+    <span>{{ n.text }}</span>
+    <button type="button" class="notice__close" aria-label="Cerrar aviso" (click)="dismissNotice()">×</button>
+  </div>
+}
+
+@if (error()) {
+  <div class="panel__state panel__state--error" role="alert">
+    {{ error() }}
+    <button type="button" class="panel__retry" (click)="reload()">Reintentar</button>
+  </div>
+}
+
+@if (showForm()) {
+  <form class="card form" [formGroup]="form" (ngSubmit)="save()">
+    <h3>{{ editingUser() ? 'Editar usuario' : 'Nuevo usuario del portal' }}</h3>
+    <div class="form__grid">
+      <label class="field field--wide">
+        <span>Nombre completo *</span>
+        <input type="text" formControlName="fullName" [class.is-invalid]="invalid('fullName')" />
+        @if (invalid('fullName')) {
+          <small class="field__err">El nombre es obligatorio (máx. 150).</small>
+        }
+      </label>
+      <label class="field field--wide">
+        <span>Correo (usuario de acceso) *</span>
+        <input type="email" formControlName="email" [class.is-invalid]="invalid('email')" />
+        @if (invalid('email')) {
+          <small class="field__err">Ingresa un correo válido.</small>
+        } @else if (!editingUser()) {
+          <small class="field__help">Aquí se enviará la contraseña temporal.</small>
+        }
+      </label>
+      <label class="field field--wide">
+        <span>Empresa *</span>
+        <select formControlName="clientId" [class.is-invalid]="invalid('clientId')">
+          <option value="">Selecciona una empresa…</option>
+          @for (c of clients(); track c.id) {
+            <option [value]="c.id">{{ c.name }} ({{ c.code }})</option>
+          }
+        </select>
+        @if (invalid('clientId')) {
+          <small class="field__err">Selecciona la empresa a la que pertenece el usuario.</small>
+        } @else {
+          <small class="field__help">El usuario solo verá el tablero de esta empresa.</small>
+        }
+      </label>
+    </div>
+    @if (formError()) {
+      <div class="form__error" role="alert">{{ formError() }}</div>
+    }
+    <div class="form__actions">
+      <button type="button" class="btn-a btn-a--ghost" (click)="cancel()">Cancelar</button>
+      <button type="submit" class="btn-a btn-a--primary" [disabled]="saving()">
+        {{ saving() ? 'Guardando…' : editingUser() ? 'Guardar cambios' : 'Crear usuario' }}
+      </button>
+    </div>
+  </form>
+}
+
+@if (loading()) {
+  <div class="panel__state" role="status">Cargando usuarios…</div>
+} @else {
+  <div class="card tablewrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Usuario</th>
+          <th>Correo</th>
+          <th>Empresa</th>
+          <th>Estado</th>
+          <th>Último ingreso</th>
+          <th class="actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (u of users(); track u.userId) {
+          <tr [class.is-off]="!u.status">
+            <td>{{ u.fullName }}</td>
+            <td>{{ u.email }}</td>
+            <td>{{ u.clientName }}</td>
+            <td>
+              @if (u.status) {
+                <span class="pill">Activo</span>
+              } @else {
+                <span class="pill pill--off">Inactivo</span>
+              }
+              @if (u.isLocked) {
+                <span class="pill pill--danger">Bloqueado</span>
+              }
+              @if (u.isFirstLogin) {
+                <span class="pill pill--warn">Sin cambiar clave</span>
+              }
+              @if (!u.clientActive) {
+                <span class="pill pill--danger">Empresa eliminada</span>
+              }
+            </td>
+            <td>{{ u.lastLogin ? (u.lastLogin | date: 'dd/MM/yyyy HH:mm') : 'Nunca' }}</td>
+            <td class="actions">
+              <button type="button" class="linkbtn" [disabled]="busyUserId() === u.userId" (click)="edit(u)">
+                Editar
+              </button>
+              <button
+                type="button"
+                class="linkbtn"
+                [disabled]="busyUserId() === u.userId"
+                (click)="resetPassword(u)"
+              >
+                Restablecer contraseña
+              </button>
+              <button
+                type="button"
+                class="linkbtn"
+                [class.linkbtn--danger]="u.status"
+                [disabled]="busyUserId() === u.userId"
+                (click)="toggleStatus(u)"
+              >
+                {{ u.status ? 'Desactivar' : 'Activar' }}
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="6" class="empty">No hay usuarios del portal registrados.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

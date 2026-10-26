@@ -1,0 +1,114 @@
+<section class="login">
+  <div class="login__card">
+    <div class="login__form-panel">
+      <div class="login__form-inner">
+        <span class="eyebrow">Primer ingreso</span>
+        <h1 class="login__title">Crea tu contraseña</h1>
+        <p class="login__subtitle">
+          @if (userName) {
+            Hola {{ userName }}.
+          }
+          Por seguridad debes reemplazar la contraseña temporal que te enviamos
+          por una propia antes de continuar.
+        </p>
+
+        @if (errorMessage()) {
+          <div class="login__alert" role="alert">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path
+                d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"
+                stroke="currentColor"
+                stroke-width="1.8"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <form
+          class="login__form"
+          [formGroup]="form"
+          (ngSubmit)="submit()"
+          novalidate
+        >
+          <div class="field">
+            <label for="newPassword">Nueva contraseña</label>
+            <div class="field__password">
+              <input
+                id="newPassword"
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="newPassword"
+                autocomplete="new-password"
+                maxlength="100"
+                placeholder="••••••••"
+                [class.is-invalid]="invalid('newPassword')"
+              />
+              <button
+                type="button"
+                class="field__toggle"
+                (click)="togglePassword()"
+                [attr.aria-label]="
+                  showPassword() ? 'Ocultar contraseña' : 'Mostrar contraseña'
+                "
+              >
+                {{ showPassword() ? 'Ocultar' : 'Mostrar' }}
+              </button>
+            </div>
+            @if (invalid('newPassword')) {
+              <small class="field__error"
+                >Mínimo 8 caracteres, con al menos una letra y un número.</small
+              >
+            }
+          </div>
+
+          <div class="field">
+            <label for="confirmPassword">Confirmar contraseña</label>
+            <input
+              id="confirmPassword"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+              maxlength="100"
+              placeholder="••••••••"
+              [class.is-invalid]="invalid('confirmPassword') || mismatch"
+            />
+            @if (mismatch) {
+              <small class="field__error">Las contraseñas no coinciden.</small>
+            }
+          </div>
+
+          <button type="submit" class="btn login__submit" [disabled]="loading()">
+            {{ loading() ? 'Guardando…' : 'Guardar y continuar' }}
+          </button>
+        </form>
+
+        <p class="login__alt">
+          <button type="button" class="login__linkbtn" (click)="cancel()">
+            Cancelar y cerrar sesión
+          </button>
+        </p>
+      </div>
+    </div>
+
+    <div class="login__brand-panel">
+      <div class="login__brand-rings" aria-hidden="true">
+        <svg viewBox="0 0 480 480" preserveAspectRatio="xMidYMid slice">
+          <g fill="none" stroke="currentColor" stroke-width="60" opacity="0.18">
+            <circle r="180" cx="90" cy="40" />
+            <circle r="180" cx="400" cy="440" />
+          </g>
+        </svg>
+      </div>
+      <div class="login__brand-content">
+        <app-logo variant="light" />
+        <h2 class="login__brand-title">Tu acceso, protegido</h2>
+        <p class="login__brand-text">
+          Solo tú conocerás tu contraseña. Después de guardarla entrarás
+          directamente al tablero de tu empresa.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

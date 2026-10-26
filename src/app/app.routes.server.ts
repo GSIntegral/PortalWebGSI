@@ -21,6 +21,16 @@ export const serverRoutes: ServerRoute[] = [
     renderMode: RenderMode.Client,
   },
   {
+    // Administración de empresas y usuarios del portal (HU_079): requiere sesión y datos en runtime.
+    path: 'portal-admin',
+    renderMode: RenderMode.Client,
+  },
+  {
+    // Cambio de contraseña del primer ingreso (HU_079): depende de la sesión del navegador.
+    path: 'cambiar-contrasena',
+    renderMode: RenderMode.Client,
+  },
+  {
     path: '**',
     renderMode: RenderMode.Prerender,
   },

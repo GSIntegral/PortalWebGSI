@@ -1,0 +1,107 @@
+<div class="panel__head">
+  <p class="panel__hint">
+    Estas son las empresas que aparecen en el tablero SST. Crea una empresa
+    antes de asignarle usuarios del portal.
+  </p>
+  <button type="button" class="btn-a btn-a--primary" (click)="newClient()">+ Nueva empresa</button>
+</div>
+
+@if (error()) {
+  <div class="panel__state panel__state--error" role="alert">
+    {{ error() }}
+    <button type="button" class="panel__retry" (click)="reload()">Reintentar</button>
+  </div>
+}
+
+@if (showForm()) {
+  <form class="card form" [formGroup]="form" (ngSubmit)="save()">
+    <h3>{{ editingId() ? 'Editar empresa' : 'Nueva empresa' }}</h3>
+    <div class="form__grid">
+      <label class="field field--wide">
+        <span>Nombre *</span>
+        <input type="text" formControlName="name" [class.is-invalid]="invalid('name')" />
+        @if (invalid('name')) {
+          <small class="field__err">El nombre es obligatorio (máx. 150).</small>
+        }
+      </label>
+      <label class="field">
+        <span>Correo</span>
+        <input type="email" formControlName="email" [class.is-invalid]="invalid('email')" />
+        @if (invalid('email')) {
+          <small class="field__err">Correo inválido.</small>
+        }
+      </label>
+      <label class="field">
+        <span>Nivel de riesgo</span>
+        <select formControlName="riskLevel">
+          <option value="">—</option>
+          @for (r of riskLevels; track r) {
+            <option [value]="r">{{ r }}</option>
+          }
+        </select>
+      </label>
+      <label class="field">
+        <span>ARL</span>
+        <input type="text" formControlName="arl" />
+      </label>
+      <label class="field">
+        <span>Colaboradores</span>
+        <input type="number" formControlName="employees" min="0" [class.is-invalid]="invalid('employees')" />
+        @if (invalid('employees')) {
+          <small class="field__err">Debe ser 0 o mayor.</small>
+        }
+      </label>
+    </div>
+    @if (formError()) {
+      <div class="form__error" role="alert">{{ formError() }}</div>
+    }
+    <div class="form__actions">
+      <button type="button" class="btn-a btn-a--ghost" (click)="cancel()">Cancelar</button>
+      <button type="submit" class="btn-a btn-a--primary" [disabled]="saving()">
+        {{ saving() ? 'Guardando…' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+}
+
+@if (loading()) {
+  <div class="panel__state" role="status">Cargando empresas…</div>
+} @else {
+  <div class="card tablewrap">
+    <table class="tbl">
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Empresa</th>
+          <th>Correo</th>
+          <th>Riesgo</th>
+          <th>ARL</th>
+          <th class="num">Colab.</th>
+          <th class="actions">Acciones</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (c of clients(); track c.id) {
+          <tr>
+            <td>{{ c.code }}</td>
+            <td>{{ c.name }}</td>
+            <td>{{ c.email }}</td>
+            <td>{{ c.riskLevel }}</td>
+            <td>{{ c.arl }}</td>
+            <td class="num">{{ c.employees }}</td>
+            <td class="actions">
+              <button type="button" class="linkbtn" (click)="edit(c)">Editar</button>
+              <label class="linkbtn linkbtn--logo">
+                {{ c.hasLogo ? 'Logo ✓' : 'Subir logo' }}
+                <input type="file" accept="image/*" hidden (change)="onLogoFile(c, $event)" />
+              </label>
+              <button type="button" class="linkbtn linkbtn--danger" (click)="remove(c)">Eliminar</button>
+            </td>
+          </tr>
+        } @empty {
+          <tr><td colspan="7" class="empty">No hay empresas registradas.</td></tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}

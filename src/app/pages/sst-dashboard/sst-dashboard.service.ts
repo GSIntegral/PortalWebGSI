@@ -31,6 +31,23 @@ export class SstDashboardService {
       .pipe(map((response) => fixMojibakeDeep(response.data)));
   }
 
+  /**
+   * Tablero de la empresa del usuario del portal (HU_079). No recibe código de empresa: el backend
+   * lo resuelve desde el usuario del token, así que un cliente no puede pedir los datos de otra.
+   */
+  getClientDashboard(year?: number | null): Observable<SstDashboard> {
+    let params = new HttpParams();
+    if (year != null) {
+      params = params.set('year', String(year));
+    }
+
+    return this._httpClient
+      .get<ApiResponse<SstDashboard>>(`${environment.apiUrl}/api/PortalDashboard/GetDashboard`, {
+        params,
+      })
+      .pipe(map((response) => fixMojibakeDeep(response.data)));
+  }
+
   /** Descarga el libro Excel con los datos SST del año. */
   exportExcel(year: number): Observable<Blob> {
     const params = new HttpParams().set('year', String(year));

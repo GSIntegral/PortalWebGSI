@@ -1,0 +1,92 @@
+/* Estilos compartidos del módulo de administración del portal (host + pestañas). */
+.admin {
+  min-height: calc(100vh - var(--header-h));
+  padding: clamp(1.5rem, 4vw, 3rem) 0 4rem;
+  background: var(--surface-alt, #f4f7fb);
+
+  &__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--primary-500, #1a5c9e);
+  }
+
+  &__title {
+    margin: 0.15rem 0 0;
+    font-family: var(--font-display, inherit);
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--ink-900, #0b1f33);
+  }
+
+  &__lead {
+    margin: 0.35rem 0 0;
+    max-width: 52ch;
+    font-size: 0.9rem;
+    color: var(--ink-500, #64748b);
+  }
+
+  &__actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.55rem 1rem;
+    border-radius: var(--r-sm, 8px);
+    border: 1px solid var(--line, #e6eaf0);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background 0.2s ease, color 0.2s ease;
+
+    &--ghost {
+      background: #fff;
+      color: var(--ink-700, #33475b);
+      &:hover {
+        background: var(--surface-2, #eef2f7);
+      }
+    }
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  border-bottom: 2px solid var(--line, #e6eaf0);
+  margin-bottom: 1.25rem;
+
+  &__btn {
+    padding: 0.65rem 1.1rem;
+    border: 0;
+    background: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-500, #64748b);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+
+    &.is-active {
+      color: var(--primary-600, #12406e);
+      border-bottom-color: var(--primary-500, #1a5c9e);
+    }
+    &:hover:not(.is-active) {
+      color: var(--ink-700, #33475b);
+    }
+  }
+}
