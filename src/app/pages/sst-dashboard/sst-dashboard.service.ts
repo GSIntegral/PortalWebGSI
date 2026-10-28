@@ -77,10 +77,14 @@ export class SstDashboardService {
     return this._userService.currentUser?.kind === 'client';
   }
 
-  /** Descarga el libro Excel con los datos SST del año. */
+  /**
+   * Descarga el libro Excel con los datos SST del año. El cliente del portal recibe solo los datos de
+   * su empresa (`PortalData/ExportExcel`); el equipo, los de todo el tenant (`SstEditor/ExportExcel`).
+   */
   exportExcel(year: number): Observable<Blob> {
     const params = new HttpParams().set('year', String(year));
-    return this._httpClient.get(`${environment.apiUrl}/api/SstEditor/ExportExcel`, {
+    const endpoint = this.isClientSession() ? 'api/PortalData/ExportExcel' : 'api/SstEditor/ExportExcel';
+    return this._httpClient.get(`${environment.apiUrl}/${endpoint}`, {
       params,
       responseType: 'blob',
     });

@@ -1,0 +1,196 @@
+<section class="mine">
+  <div class="container">
+    <header class="mine__head">
+      <div>
+        <p class="mine__eyebrow">Mi empresa</p>
+        <h1 class="mine__title">{{ companyName }}</h1>
+        <p class="mine__lead">
+          Aquí actualizas los datos de tu empresa. Lo que guardes se refleja en tu tablero y en los
+          informes que exportes.
+        </p>
+      </div>
+      <div class="tbar mine__actions">
+        <a routerLink="/sst-dashboard" class="tbtn tbtn--ghost">← Volver al tablero</a>
+      </div>
+    </header>
+
+    <div class="tabs" role="tablist">
+      <button type="button" role="tab" class="tabs__btn" [class.is-active]="tab() === 'indicadores'" (click)="setTab('indicadores')">
+        Indicadores SST
+      </button>
+      <button type="button" role="tab" class="tabs__btn" [class.is-active]="tab() === 'demografia'" (click)="setTab('demografia')">
+        Demografía
+      </button>
+      <button type="button" role="tab" class="tabs__btn" [class.is-active]="tab() === 'capacitaciones'" (click)="setTab('capacitaciones')">
+        Capacitaciones
+      </button>
+      <button type="button" role="tab" class="tabs__btn" [class.is-active]="tab() === 'empresa'" (click)="setTab('empresa')">
+        Datos de la empresa
+      </button>
+    </div>
+
+    @if (showsYear()) {
+      <div class="tbar mine__toolbar">
+        <label class="tfield">
+          <span>Año</span>
+          <select (change)="onYearChange($event)">
+            @for (y of years; track y) {
+              <option [value]="y" [selected]="y === year()">{{ y }}</option>
+            }
+          </select>
+        </label>
+        @if (tab() !== 'capacitaciones') {
+          <p class="mine__status" [class.is-empty]="!hasData()">
+            {{ hasData() ? 'Datos cargados para este año.' : 'Aún no hay datos para este año.' }}
+          </p>
+        }
+      </div>
+    }
+
+    @if (notice()) {
+      <div class="notice" role="status">
+        <span>{{ notice() }}</span>
+        <button type="button" class="notice__close" aria-label="Cerrar aviso" (click)="notice.set(null)">×</button>
+      </div>
+    }
+    @if (error()) {
+      <div class="panel__state panel__state--error" role="alert">
+        {{ error() }}
+        <button type="button" class="panel__retry" (click)="load()">Reintentar</button>
+      </div>
+    }
+
+    @if (loading()) {
+      <div class="panel__state" role="status">Cargando…</div>
+    } @else {
+      <!-- ══════════ INDICADORES ══════════ -->
+      @if (tab() === 'indicadores') {
+        <form class="card form" [formGroup]="indicatorsForm" (ngSubmit)="save()" novalidate>
+          <h3>Indicadores de {{ year() }}</h3>
+          <div class="form__grid">
+            @for (f of indicatorFields; track f.name) {
+              <label class="field">
+                <span>{{ f.label }}</span>
+                <input
+                  type="number"
+                  min="0"
+                  [attr.max]="f.max ?? null"
+                  [attr.step]="f.step"
+                  [formControlName]="f.name"
+                  [class.is-invalid]="invalid(indicatorsForm, f.name)"
+                />
+                @if (invalid(indicatorsForm, f.name)) {
+                  <small class="field__err">Ingresa un valor entre 0 y {{ f.max ?? 'un número válido' }}.</small>
+                }
+              </label>
+            }
+          </div>
+          <div class="form__actions">
+            <button type="submit" class="tbtn" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar indicadores' }}</button>
+          </div>
+        </form>
+      }
+
+      <!-- ══════════ DEMOGRAFÍA ══════════ -->
+      @if (tab() === 'demografia') {
+        <form class="card form" [formGroup]="demographyForm" (ngSubmit)="save()" novalidate>
+          <h3>Demografía de {{ year() }}</h3>
+          <div class="form__grid">
+            @for (f of demographyFields; track f.name) {
+              <label class="field">
+                <span>{{ f.label }}</span>
+                <input
+                  type="number"
+                  min="0"
+                  [attr.max]="f.max ?? null"
+                  [attr.step]="f.step"
+                  [formControlName]="f.name"
+                  [class.is-invalid]="invalid(demographyForm, f.name)"
+                />
+                @if (invalid(demographyForm, f.name)) {
+                  <small class="field__err">Ingresa un valor entre 0 y {{ f.max ?? 'un número válido' }}.</small>
+                }
+              </label>
+            }
+            <label class="field field--wide">
+              <span>Cargo principal</span>
+              <input type="text" maxlength="100" formControlName="mainRole" />
+            </label>
+            <label class="field field--wide">
+              <span>EPS principal</span>
+              <input type="text" maxlength="100" formControlName="mainHealthProvider" />
+            </label>
+          </div>
+          <div class="form__actions">
+            <button type="submit" class="tbtn" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar demografía' }}</button>
+          </div>
+        </form>
+      }
+
+      <!-- ══════════ CAPACITACIONES ══════════ -->
+      @if (tab() === 'capacitaciones') {
+        <form class="card form" (ngSubmit)="save()" novalidate>
+          <h3>Capacitaciones de {{ year() }}: realizadas vs meta</h3>
+          <div class="months">
+            @for (g of trainingsForm.controls; track g.value.monthNumber) {
+              <div class="month" [formGroup]="g">
+                <span class="month__name">{{ g.value.monthName }}</span>
+                <label class="month__field">
+                  <small>Realizadas</small>
+                  <input type="number" min="0" step="1" formControlName="completed" />
+                </label>
+                <label class="month__field">
+                  <small>Meta</small>
+                  <input type="number" min="0" step="1" formControlName="target" />
+                </label>
+              </div>
+            }
+          </div>
+          <div class="form__actions">
+            <button type="submit" class="tbtn" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar capacitaciones' }}</button>
+          </div>
+        </form>
+      }
+
+      <!-- ══════════ DATOS DE LA EMPRESA ══════════ -->
+      @if (tab() === 'empresa') {
+        <form class="card form" [formGroup]="companyForm" (ngSubmit)="save()" novalidate>
+          <h3>Datos de la empresa</h3>
+          <p class="mine__note">El nombre y el logo los administra GS Integral. Si necesitas cambiarlos, escríbenos desde «Contáctanos».</p>
+          <div class="form__grid">
+            <label class="field field--wide">
+              <span>Correo de contacto</span>
+              <input type="email" maxlength="150" formControlName="email" [class.is-invalid]="invalid(companyForm, 'email')" />
+              @if (invalid(companyForm, 'email')) {
+                <small class="field__err">Correo inválido.</small>
+              }
+            </label>
+            <label class="field">
+              <span>Nivel de riesgo</span>
+              <select formControlName="riskLevel">
+                <option value="">—</option>
+                @for (r of riskLevels; track r) {
+                  <option [value]="r">{{ r }}</option>
+                }
+              </select>
+            </label>
+            <label class="field">
+              <span>ARL</span>
+              <input type="text" maxlength="100" formControlName="arl" />
+            </label>
+            <label class="field">
+              <span>Colaboradores</span>
+              <input type="number" min="0" step="1" formControlName="employees" [class.is-invalid]="invalid(companyForm, 'employees')" />
+              @if (invalid(companyForm, 'employees')) {
+                <small class="field__err">Debe ser 0 o mayor.</small>
+              }
+            </label>
+          </div>
+          <div class="form__actions">
+            <button type="submit" class="tbtn" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar datos' }}</button>
+          </div>
+        </form>
+      }
+    }
+  </div>
+</section>

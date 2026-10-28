@@ -1,0 +1,158 @@
+/* «Mi empresa»: los estilos de formularios, tarjetas, avisos y pestañas vienen de portal-admin-panel.scss. */
+.mine {
+  min-height: calc(100vh - var(--header-h));
+  padding: clamp(1.5rem, 4vw, 3rem) 0 4rem;
+  background: var(--surface-alt);
+
+  &__head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+
+  &__eyebrow {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--link);
+  }
+
+  &__title {
+    margin: 0.15rem 0 0;
+    font-family: var(--font-display, inherit);
+    font-size: clamp(1.4rem, 3vw, 2rem);
+    color: var(--ink-900);
+  }
+
+  &__lead {
+    margin: 0.35rem 0 0;
+    max-width: 56ch;
+    font-size: 0.9rem;
+    color: var(--ink-500);
+  }
+
+  &__actions {
+    width: min(100%, 220px);
+  }
+
+  &__toolbar {
+    grid-template-columns: minmax(150px, 220px) minmax(0, 1fr);
+    margin-bottom: 1rem;
+  }
+
+  &__status {
+    margin: 0;
+    align-self: center;
+    padding-top: 1.1rem;
+    font-size: 0.85rem;
+    color: var(--ok-fg);
+
+    &.is-empty {
+      color: var(--ink-500);
+    }
+  }
+
+  &__note {
+    margin: -0.4rem 0 1rem;
+    font-size: 0.85rem;
+    color: var(--ink-500);
+  }
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  overflow-x: auto;
+  border-bottom: 2px solid var(--line);
+  margin-bottom: 1.25rem;
+
+  &__btn {
+    flex: none;
+    padding: 0.65rem 1.1rem;
+    border: 0;
+    background: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--ink-500);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+
+    &.is-active {
+      color: var(--link-strong);
+      border-bottom-color: var(--primary-500);
+    }
+    &:hover:not(.is-active) {
+      color: var(--ink-700);
+    }
+  }
+}
+
+.months {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.month {
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  padding: 0.6rem 0.7rem;
+  background: var(--surface-alt);
+
+  &__name {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--ink-900);
+  }
+
+  &__field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+
+    small {
+      font-size: 0.7rem;
+      color: var(--ink-500);
+    }
+
+    input {
+      width: 72px;
+      height: 34px;
+      padding: 0 0.4rem;
+      border: 1px solid var(--line);
+      border-radius: var(--r-sm);
+      background: var(--surface);
+      color: var(--ink-900);
+      font-size: 0.85rem;
+      text-align: right;
+    }
+  }
+}
+
+@media (max-width: 900px) {
+  .months {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .months {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .mine__toolbar {
+    grid-template-columns: 1fr;
+  }
+  .mine__status {
+    padding-top: 0;
+  }
+}

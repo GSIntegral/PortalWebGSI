@@ -32,6 +32,25 @@ describe('SstDashboardService.exportPdf', () => {
     req.flush(new Blob(['%PDF-'], { type: 'application/pdf' }));
   });
 
+  it('el cliente exporta el Excel de SU empresa (endpoint del portal, sin código de empresa)', () => {
+    userService.user = { id: 'u-1', name: 'Ana', email: 'ana@cliente.com', kind: 'client' };
+
+    service.exportExcel(2026).subscribe();
+
+    const req = http.expectOne((r) => r.url === `${environment.apiUrl}/api/PortalData/ExportExcel`);
+    expect(req.request.params.get('year')).toBe('2026');
+    expect(req.request.params.has('clientCode')).toBe(false);
+    req.flush(new Blob(['xlsx']));
+  });
+
+  it('el equipo exporta el Excel de todo el tenant', () => {
+    userService.user = { id: 's-1', name: 'Admin', email: 'admin@gsintegral.com', kind: 'staff' };
+
+    service.exportExcel(2026).subscribe();
+
+    http.expectOne((r) => r.url === `${environment.apiUrl}/api/SstEditor/ExportExcel`).flush(new Blob(['xlsx']));
+  });
+
   it('el equipo pide el consolidado cuando no hay empresa elegida', () => {
     userService.user = { id: 's-1', name: 'Admin', email: 'admin@gsintegral.com', kind: 'staff' };
 

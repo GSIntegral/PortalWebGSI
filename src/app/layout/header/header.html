@@ -26,6 +26,15 @@
             (click)="closeMenu()"
             >{{ user.kind === 'client' ? 'Mi tablero' : 'Tablero SST' }}</a
           >
+          @if (user.kind === 'client') {
+            <a
+              routerLink="/mi-empresa"
+              class="nav__link"
+              routerLinkActive="is-active"
+              (click)="closeMenu()"
+              >Mi empresa</a
+            >
+          }
           @if (user.kind !== 'client') {
             <a
               routerLink="/portal-admin"

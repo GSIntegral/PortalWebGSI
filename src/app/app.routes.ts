@@ -60,6 +60,13 @@ export const routes: Routes = [
     title: 'Crea tu contraseña | GS Integral SAS',
   },
   {
+    // Edición de los datos de SU empresa (HU_079): solo usuarios del portal; el backend resuelve la empresa.
+    path: 'mi-empresa',
+    canActivate: [AuthGuard, ClientGuard],
+    loadComponent: () => import('./pages/mi-empresa/mi-empresa').then((m) => m.MiEmpresa),
+    title: 'Mi empresa | GS Integral SAS',
+  },
+  {
     // Clientes (ven solo su empresa) y equipo (ve el consolidado y puede cambiar de empresa).
     path: 'sst-dashboard',
     canActivate: [AuthGuard],

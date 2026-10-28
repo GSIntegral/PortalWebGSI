@@ -37,7 +37,13 @@
               }
             </select>
           </label>
-          <!-- Edición, importación y exportación Excel operan sobre todo el tenant: solo el equipo (HU_079). -->
+          <!-- El cliente edita y exporta SOLO los datos de su empresa (HU_079); el equipo, los de todo el tenant. -->
+          @if (isClient) {
+            <a routerLink="/mi-empresa" class="tbtn tbtn--ghost">✎ Editar mis datos</a>
+            <button type="button" class="tbtn tbtn--ghost" [disabled]="exporting()" (click)="exportExcel()">
+              {{ exporting() ? 'Exportando…' : '⬇ Exportar Excel' }}
+            </button>
+          }
           @if (!isClient) {
             <a routerLink="/portal-admin" class="tbtn tbtn--ghost">⚙ Empresas y usuarios</a>
             <a routerLink="/sst-dashboard/editor" class="tbtn tbtn--ghost">✎ Editar datos</a>
